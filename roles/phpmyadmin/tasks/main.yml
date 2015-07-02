@@ -1,0 +1,18 @@
+- name: "* roles/phpmyadmin"
+  debug:
+  tags: ['phpmyadmin']
+
+- name: phpmyadmin | install
+  yum:
+    name: phpmyadmin
+    enablerepo: "remi,remi-php55"
+    state: present
+  tags: ['phpmyadmin']
+
+- name: phpmyadmin | link to nginx
+  file: src=/usr/share/phpMyAdmin
+        dest=/usr/share/nginx/pma
+        owner=root
+        group=root
+        state=link
+  tags: ['phpmyadmin']

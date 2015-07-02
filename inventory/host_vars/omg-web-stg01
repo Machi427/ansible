@@ -1,0 +1,56 @@
+# host 毎設定 omg-web-stg01
+
+# playbook/ping 用
+ping_hv: omg-web-stg01
+
+
+# roles/nginx 用
+nginx_sites:
+ - server:
+    file_name:   sbmaster.omg.griphone.co.jp.conf
+    server_name: sbmaster.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/sbmaster.omg.griphone.co.jp/sbmaster.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/sbmaster.omg.griphone.co.jp/sbmaster.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   admin.sbmaster.omg.griphone.co.jp.conf
+    server_name: admin.sbmaster.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/admin.sbmaster.omg.griphone.co.jp/admin.sbmaster.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/admin.sbmaster.omg.griphone.co.jp/admin.sbmaster.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   stg.omg.griphone.co.jp.conf
+    server_name: stg.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/stg.omg.griphone.co.jp/stg.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/stg.omg.griphone.co.jp/stg.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   admin.stg.omg.griphone.co.jp.conf
+    server_name: admin.stg.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/admin.stg.omg.griphone.co.jp/admin.stg.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/admin.stg.omg.griphone.co.jp/admin.stg.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+
+# roles/httpd 用
+httpd_sites:
+ - server:
+    sb_name:     sbmaster
+    file_name:   sbmaster.omg.griphone.co.jp.conf
+    server_name: sbmaster.omg.griphone.co.jp
+ - server:
+    sb_name:     admin.sbmaster
+    file_name:   admin.sbmaster.omg.griphone.co.jp.conf
+    server_name: admin.sbmaster.omg.griphone.co.jp
+ - server:
+    sb_name:     stg
+    file_name:   stg.omg.griphone.co.jp.conf
+    server_name: stg.omg.griphone.co.jp
+ - server:
+    sb_name:     admin.stg
+    file_name:   admin.stg.omg.griphone.co.jp.conf
+    server_name: admin.stg.omg.griphone.co.jp
+

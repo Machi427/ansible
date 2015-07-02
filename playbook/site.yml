@@ -1,0 +1,38 @@
+# 全ての処理を対象にするプレイブック
+#
+# 処理実行用ではなく、role や syntax のチェックに使用する。
+# 新しいプレイブックを書いたら追加すること
+# inventory を考慮すること
+
+# ansible-playbook site.yml --syntax-check
+# ansible-playbook site.yml --list-tasks
+# ansible-playbook site.yml --list-hosts
+# ansible-playbook site.yml --check
+# ansible-playbook site.yml # 使用禁止
+
+- include: ping.yml              # 導通
+
+- include: phase01.yml           # 初期設定
+- include: phase02.yml           # 言語設定
+- include: phase03.yml           # システム監視及びセキュリティ
+
+- include: infra.yml             # 随時運用
+
+- include: servers_adimn.yml     # 管理ツール
+- include: servers_cache.yml     # Cache ( Memcached ) server
+- include: servers_db.yml        # DB ( MySQL ) server
+- include: servers_deploy.yml    # Deploy ( Capistrano )
+- include: servers_jenkins.yml   # CI ( Jenkins ) server
+- include: servers_kvs.yml       # KVS ( Redis ) server
+- include: servers_local.yml     # プロジェクト開発用
+- include: servers_log.yml       # Log server
+- include: servers_munin.yml     # Munin server
+- include: servers_vagrant.yml   # インフラテスト用
+- include: servers_web.yml       # Web server
+- include: servers_zabbix.yml    # Zabbix server
+
+- include: phase09.yml           # リソース監視及びログ
+
+- include: test.yml              # Ansible TEST
+- include: samples.yml           # Ansible Sample code
+

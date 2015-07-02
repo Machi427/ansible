@@ -1,0 +1,26 @@
+---
+
+# munin setup
+
+- name: "* roles/munin"
+  debug:
+  tags: [munin,munin-node,munin-server]
+
+- name: "install capnm"
+  get_url:
+    url:  http://xrl.us/cpanm
+    dest: /usr/local/bin/cpanm
+    mode: 755
+  tags: [munin,munin-node,munin-server,cpanm]
+
+- name: munin-node
+  include: node.yml
+  tags: [munin,munin-node,munin-server]
+
+- name: munin server
+  include: server.yml
+  # see playbook/server_munin.yml
+  when: (is_munin_server is defined and is_munin_server == 1)
+  tags: [munin,munin-node,munin-server]
+
+

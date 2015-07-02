@@ -1,0 +1,10 @@
+# host 毎設定 omg-db02s
+
+# playbook/ping 用
+ping_hv: omg-db02s
+
+# DB 系サーバの設定ファイル更新用
+host_zzfile_conf:
+  # slave 用なので注意すること
+  - src:    etc/td-agent/td-agent.conf.prod.dbs
+    dest:  /etc/td-agent/td-agent.conf

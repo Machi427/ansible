@@ -1,0 +1,15 @@
+---
+
+# SELinux disable
+
+- name: "* roles/selinux | tags selinux | allways disabled"
+  debug:
+
+- name: install libselinux-python for ansible selinux action
+  yum: pkg=libselinux-python state=present
+  tags: [selinux]
+
+- name: disabled
+  selinux: state=disabled
+  tags: [selinux]
+

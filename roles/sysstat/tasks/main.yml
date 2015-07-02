@@ -1,0 +1,16 @@
+---
+
+- name: "* roles/sysstat | tags sysstat"
+  debug:
+  tags: [sysstat]
+
+- name: install
+  yum: name=sysstat state=latest
+  tags: [sysstat]
+
+- name: service start
+  service: name=sysstat state=started enabled=yes
+  changed_when: false
+  # sysstat の init script (/etc/init.d/sysstat) が腐ってるので常に変更なし扱いにしておく
+  tags: [sysstat]
+

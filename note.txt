@@ -1,0 +1,74 @@
+h1. Ansible に関するノート
+
+h2. 全体方針
+
+* 全ホストを inventory ファイルに収めて管理下に置く
+** inventory ファイルと playbook ファイルを駆使して、１プロジェクトのひな形セットを目指す
+** inventory, playbook,limitオプション、tagsオプションをコントロール可能にしておくこと
+** 管理ヒエラルキーの理解が必要
+* 対象OSを CentOS に限定し、CentOS 以外を無理に対象としない。むしろ省く
+** OSの固定は、開発、管理、運用、監視、引継のあらゆるパートでのコストを下げることができる
+
+h2. 設計方針
+
+* 基本操作を下記のとおりとし、属人化を排除、誰でも実行可能、再現可能にし、引き継ぎコストをなくす
+<pre>
+ansible-playbook XXX.yml --list-hosts # 対象のホスト確認
+ansible-playbook XXX.yml --list-task  # 対象のタスク確認
+ansible-playbook XXX.yml
+</pre>
+
+* なんでも一つにしないで、分解する。
+** 最終的にそのほうがわかりやすく、変更も加えやすい
+
+* 新しいマシンを作ったら下記の手順に従う
+<pre>
+# inventory に対象ホストを追加、設定を加える
+vi inventory/TARGET_ENV
+vi inventory/group_vars/TARGET_GROUP
+vi inventory/host_vars/TARGET_HOST
+vi ansible.cfg # inventory を変更する（常に実行対象の環境を向ける）
+
+# [初回のみ]接続確認
+ssh TARGET_HOST (接続ユーザでsshしてknown_hostsに加える)
+ansible TARGET_HOST -i inventory/TARGET_ENV -m ping
+ansible-playbook playbook/ping.yml -l TARGET_HOST
+
+# [初回のみ]基本設定
+ansible-playbook playbook/phase01.yml -l TARGET_HOST --extra-vars "set_hostname=TARGET_NAME"
+
+# [初回のみ]開発言語設定
+ansible-playbook playbook/phase02.yml -l TARGET_HOST
+
+# [初回のみ][必要に応じて]システム監視及びセキュリティ
+ansible-playbook playbook/phase03.yml -l TARGET_HOST
+
+# [初回のみ][必要に応じて]対象ホスト毎設定
+ansible-playbook playbook/servers_XXXX -l TARGET_HOST
+
+# [初回のみ]リソース監視
+ansible-playbook playbook/phase09.yml -l TARGET_HOST
+</pre>
+
+
+h2. 運用想定メモ
+
+* 新規サーバを追加した際に hostname を変更する。または確認する。
+<pre>
+ansible-playbook phase01.yml -l TARGET --tags=hostname --extra-vars "set_hostname=TARGET_NAME"
+</pre>
+
+
+
+h2. Ansible 自体への気づきメモ
+
+* vars 周りのヒエラルキー設計が若干おかしい気がする
+* --tags は大文字小文字を区別するので注意する
+* group_vars と hosts_vars は inventory か playbook の置いてあるディレクトリ配下にある必要がある
+
+h2. 今回プロジェクト用の気づきメモ
+
+* 環境毎に inventory を分離するのはいいアイデアのはず
+* 
+
+

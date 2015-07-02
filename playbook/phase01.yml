@@ -1,0 +1,38 @@
+# サーバ構築の最初期に実行するタスクを集めたプレイブック
+#
+# 使用時は必ず -l で対象ホストを絞り、 --tags で対象タスクを制限すること。
+# task(role) 毎に必要な追加変数は各 task ファイルを参照。
+#
+# 単独運用時
+# ansible-playbook playbook/phase01.yml -l XXX --tags=YYY
+#
+# 新規サーバ追加時（ホスト名を決めて一度に全部処理）
+# ansible-playbook playbook/phase01.yml -l XXX --extra-vars={ site_hostname:NEW_SERVER_NAME }
+
+- hosts: all
+  sudo: yes
+  roles:
+    # set_hostname=server_name
+    - { role: hostname }
+
+    - { role: selinux }
+
+    # ZONENAME=UCT
+    - { role: timezone }
+
+    - { role: ulimit }
+    - { role: net.ipv4 }
+
+    - { role: yum.repo }
+    - { role: yum.plugin }
+    - { role: yum.default }
+
+    # i18n_lang=ja_JP.UTF-8
+    - { role: i18n }
+
+    # stop_services=[]
+    - { role: service.stop }
+
+    # install unbound
+    # - { role: unbound }
+    # Ameba Cloud のサーバで unbound を入れると LDAP が機能しなくなるので一旦止める

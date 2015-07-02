@@ -1,0 +1,20 @@
+- name: "* roles/hosts"
+  debug: msg="ih:{{ inventory_hostname }}, ah:{{ ansible_hostname }}, gn[3]:{{ group_names[3]|default('X') }}, gn[2]:{{ group_names[2]|default('X') }}, gn[1]:{{ group_names[1]|default('X') }}, gn[0]:{{ group_names[0]|default('X') }}"
+  tags: [hosts]
+
+- name: copy to /etc/hosts
+  template: src={{ item }} dest=/etc/hosts group=root owner=root mode=0644
+  # debug:
+  with_first_found:
+    - files:
+        - hosts.{{ inventory_hostname }}.j2
+        - hosts.{{ ansible_hostname }}.j2
+        - hosts.{{ group_names[3] | default('x') }}.j2
+        - hosts.{{ group_names[2] | default('x') }}.j2
+        - hosts.{{ group_names[1] | default('x') }}.j2
+        - hosts.{{ group_names[0] | default('x') }}.j2
+        - hosts.j2
+      paths:
+        - ../templates/
+  tags: ['hosts']
+

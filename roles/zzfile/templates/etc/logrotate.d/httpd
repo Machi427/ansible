@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+/var/log/httpd/*log
+/var/log/httpd/*/*log {
+    create 0644
+    daily
+    rotate 60
+    dateext
+    missingok
+    notifempty
+    sharedscripts
+    compress
+    delaycompress
+    postrotate
+        /sbin/service httpd reload > /dev/null 2>/dev/null || true
+        /etc/init.d/logmon switch
+    endscript
+}

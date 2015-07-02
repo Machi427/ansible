@@ -1,0 +1,103 @@
+# playbook/ping.yml 用のテスト。
+ping_gv_ifg_production: group_vars/ifg_production
+
+# roles/nginx 用設定
+nginx_rlimit_nofile: 4096
+nginx_max_clients: 2048
+nginx_http_pre_params:
+  charset:           "utf-8"
+  "log_format  main": '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" $request_time'
+  "log_format  gzip": '$http_x_forwarded_for - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$gzip_ratio" $request_time'
+  "log_format  debug_request_file": '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$request_filename" $request_time'
+nginx_http_params:
+  sendfile:          "on"
+  tcp_nopush:        "on"
+  tcp_nodelay:       "on"
+  keepalive_timeout: "2"
+  keepalive_requests: "50"
+  server_tokens:     "off"
+  server_names_hash_bucket_size: "64"
+  include:      "/etc/nginx/mime.types"
+  default_type: "application/octet-stream"
+  access_log:   "/var/log/nginx/access.log gzip"
+  error_log:    "/var/log/nginx/error.log"
+  gzip:              "on"
+  gzip_disable:      "\"msie6\""
+  gzip_vary:         "off"
+  gzip_proxied:      "off"
+  gzip_comp_level:   "1"
+  gzip_buffers:      "16 8k"
+  gzip_http_version: "1.1"
+  gzip_types: "text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/x-http-php"
+  proxy_cache_path: "/var/cache/nginx levels=1:2 keys_zone=czone:32m max_size=256m inactive=120m"
+#  proxy_temp_path:  "/var/tmp/nginx" # directive is duplicate
+  proxy_cache_key:  "\"$scheme://$host$request_uri\""
+  "proxy_set_header Connection":         "\"\""
+  "proxy_set_header Host":               "$host"
+  "proxy_set_header X-Real-IP":          "$remote_addr"
+  "proxy_set_header Remote-Addr":        "$remote_addr"
+  "proxy_set_header X-Forwarded-Host":   "$host"
+  "proxy_set_header X-Forwarded-Server": "$host"
+  "proxy_set_header X-Forwarded-For":    "$proxy_add_x_forwarded_for"
+#  proxy_connect_timeout: "30" # directive is duplicate
+  proxy_send_timeout:    "30"
+  proxy_read_timeout:    "60"
+#  proxy_buffers:         "32 16k" # directive is duplicate
+  proxy_headers_hash_max_size:    "1024"
+  proxy_headers_hash_bucket_size: "128"
+
+# ifg_production の roles/nginx の site.conf はここに記載する（omg-webで共通だから）
+nginx_sites:
+ - server:
+    file_name:   x-arthur.gree-pf.net.conf
+    server_name: x-arthur.gree-pf.net
+    listen: 80
+    access_log:  "/var/log/nginx/x-arthur.gree-pf.net/x-arthur.gree-pf.net-access.log   gzip"
+    error_log:   "/var/log/nginx/x-arthur.gree-pf.net/x-arthur.gree-pf.net-error.log"
+    include:     "/etc/nginx/conf.d/include/common-prod.conf"
+ - server:
+    file_name:   fp.x-arthur.com.conf
+    server_name: fp.x-arthur.com
+    listen: 80
+    access_log:  "/var/log/nginx/fp.x-arthur.com/fp.x-arthur.com-access.log   gzip"
+    error_log:   "/var/log/nginx/fp.x-arthur.com/fp.x-arthur.com-error.log"
+    include:     "/etc/nginx/conf.d/include/common-prod.conf"
+
+# roles/httpd 用
+httpd_sites:
+ - server:
+    sb_name:     production
+    file_name:   x-arthur.gree-pf.net.conf
+    server_name: x-arthur.gree-pf.net
+    port:        8081
+ - server:
+    sb_name:     production
+    file_name:   fp.x-arthur.com.conf
+    server_name: fp.x-arthur.com
+    alt_docroot: x-arthur.gree-pf.net
+    port:        8082
+
+# roles/memcached 用設定 production においてはローカル用。 omg-memXX 用は hosts_vars に記載する
+memcached_conf:
+  - filename:  memcached
+    port:      11211
+    user:      memcached
+    maxconn:   16384
+    cachesize: 512
+    options:   ""
+
+# roles/redis 用設定 production においては omg-redXX 用
+redis_conf:
+  - filename: redis
+    logfile:  "/var/log/redis/redis.log"
+    port:     6379
+    bind:     "0.0.0.0"
+  - filename: redis-6380
+    logfile:  "/var/log/redis/redis-6380.log"
+    port:     6380
+    bind:     "0.0.0.0"
+  - filename: redis-6381
+    logfile:  "/var/log/redis/redis-6381.log"
+    port:     6381
+    bind:     "0.0.0.0"
+

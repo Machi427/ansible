@@ -1,0 +1,8 @@
+# ロール内で使用する変数は全てデフォルト値を設定すべき。
+# この値を group_vars,host_vars,inventory で上書きする。
+vars_test01: roles/test/defaults/main.yml
+vars_test02: roles/test/defaults/main.yml
+vars_test03: roles/test/defaults/main.yml
+vars_test04: roles/test/defaults/main.yml
+vars_test05: roles/test/defaults/main.yml
+vars_test06: roles/test/defaults/main.yml

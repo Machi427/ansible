@@ -1,0 +1,12 @@
+# 言語系を揃える
+#
+
+- hosts: all
+  sudo: yes
+  roles:
+    - py27
+    - rbenv
+    - php55
+    # - php56
+    - ant
+

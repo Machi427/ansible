@@ -1,0 +1,20 @@
+---
+
+- name: "* roles/ntp | tags ntp"
+  debug:
+  tags: [ntp]
+
+- name: install the required packages
+  yum: name=ntp state={{ ntp_pkg_state }}
+  tags: [ntp]
+
+- name: copy the ntp.conf from templates
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  notify:
+  - restart ntp
+  tags: [ntp]
+
+- name: start/stop ntp service
+  service: name={{ ntp_service_name }} state={{ ntp_service_state }} enabled={{ ntp_service_enabled }} pattern='/ntpd'
+  tags: [ntp]
+

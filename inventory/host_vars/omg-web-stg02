@@ -1,0 +1,110 @@
+# host 毎設定 omg-web-stg02
+
+# playbook/ping 用
+ping_hv: omg-web-stg02
+
+
+# roles/nginx 用
+nginx_sites:
+ - server:
+    file_name:   sbmaster.omg.griphone.co.jp.conf
+    server_name: sbmaster.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/sbmaster.omg.griphone.co.jp/sbmaster.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/sbmaster.omg.griphone.co.jp/sbmaster.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   admin.sbmaster.omg.griphone.co.jp.conf
+    server_name: admin.sbmaster.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/admin.sbmaster.omg.griphone.co.jp/admin.sbmaster.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/admin.sbmaster.omg.griphone.co.jp/admin.sbmaster.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   stg.omg.griphone.co.jp.conf
+    server_name: stg.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/stg.omg.griphone.co.jp/stg.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/stg.omg.griphone.co.jp/stg.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   admin.stg.omg.griphone.co.jp.conf
+    server_name: admin.stg.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/admin.stg.omg.griphone.co.jp/admin.stg.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/admin.stg.omg.griphone.co.jp/admin.stg.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+
+# roles/httpd 用
+httpd_sites:
+ - server:
+    sb_name:     sbmaster
+    file_name:   sbmaster.omg.griphone.co.jp.conf
+    server_name: sbmaster.omg.griphone.co.jp
+ - server:
+    sb_name:     admin.sbmaster
+    file_name:   admin.sbmaster.omg.griphone.co.jp.conf
+    server_name: admin.sbmaster.omg.griphone.co.jp
+ - server:
+    sb_name:     stg
+    file_name:   stg.omg.griphone.co.jp.conf
+    server_name: stg.omg.griphone.co.jp
+ - server:
+    sb_name:     admin.stg
+    file_name:   admin.stg.omg.griphone.co.jp.conf
+    server_name: admin.stg.omg.griphone.co.jp
+
+# roles/redis 用設定 inventory/group_vars/ifg_staging からコピー
+# slave 機の設定用（omg-web-stg02のredisをstg01のslaveに変更する）
+redis_conf:
+  - filename: redis
+    logfile:  "/var/log/redis/redis.log"
+    port:     6379
+    bind:     "0.0.0.0"
+    slaveof_masterip: 10.35.84.54
+  - filename: redis-6380
+    logfile:  "/var/log/redis/redis-6380.log"
+    port:     6380
+    bind:     "0.0.0.0"
+    slaveof_masterip: 10.35.84.54
+  - filename: redis-6381
+    logfile:  "/var/log/redis/redis-6381.log"
+    port:     6381
+    bind:     "0.0.0.0"
+    slaveof_masterip: 10.35.84.54
+  - filename: redis-6382
+    logfile:  "/var/log/redis/redis-6382.log"
+    port:     6382
+    bind:     "0.0.0.0"
+    slaveof_masterip: 10.35.84.54
+  - filename: redis-6383
+    logfile:  "/var/log/redis/redis-6383.log"
+    port:     6383
+    bind:     "0.0.0.0"
+    slaveof_masterip: 10.35.84.54
+  - filename: redis-6384
+    logfile:  "/var/log/redis/redis-6384.log"
+    port:     6384
+    bind:     "0.0.0.0"
+    slaveof_masterip: 10.35.84.54
+  - filename: redis-6385
+    logfile:  "/var/log/redis/redis-6385.log"
+    port:     6385
+    bind:     "0.0.0.0"
+    slaveof_masterip: 10.35.84.54
+  - filename: redis-6386
+    logfile:  "/var/log/redis/redis-6386.log"
+    port:     6386
+    bind:     "0.0.0.0"
+    slaveof_masterip: 10.35.84.54
+  - filename: redis-6387
+    logfile:  "/var/log/redis/redis-6387.log"
+    port:     6387
+    bind:     "0.0.0.0"
+    slaveof_masterip: 10.35.84.54
+  - filename: redis-6388
+    logfile:  "/var/log/redis/redis-6388.log"
+    port:     6388
+    bind:     "0.0.0.0"
+    slaveof_masterip: 10.35.84.54
+

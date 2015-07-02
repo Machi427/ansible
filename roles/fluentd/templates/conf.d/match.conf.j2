@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+<match web.**>
+  type forward
+  send_timeout 60s
+  recover_wait 10s
+  heartbeat_interval 1s
+  phi_threshold 8
+  hard_timeout 60s
+  flush_interval 1s
+  buffer_chunk_limit 10m
+  buffer_queue_limit 512
+  buffer_type file
+  buffer_path /var/tmp/fluent_buf
+  <server>
+    name {{ item.server_name | default('omega-log01') }}
+    host {{ item.server_host | default('10.125.24.91') }}
+    port {{ item.server_port | default('24224') }}
+  </server>
+</match>

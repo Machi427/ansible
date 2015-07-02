@@ -1,0 +1,59 @@
+# playbook/ping.yml 用のテスト。
+ping_gv_all: group_vars/all
+
+# 変数の優先度テスト。持ち込みタスクのデフォルトを書き直すのに使ってよい
+# または全サーバ共通の設定など
+vars_test01: group_vars/all
+vars_test02: group_vars/all
+vars_test03: group_vars/all
+vars_test04: group_vars/all
+vars_test05: group_vars/all
+
+# Project 共通
+
+PRJ_NAME: "omega project"
+PRJ_DESC: "プロジェクトの命名理由とか書くといいと思うよ。"
+PRJ_CODE: omega
+PRJ_CODE3: omg
+
+INFRA_ML: "infra@griphone.co.jp"
+INFRA_OWNER_NAME: "Y.Nishimura"
+INFRA_OWNER_MAIL: "nishimura_yoshitaka_gn@griphone.co.jp"
+
+# for users
+users:
+  - username: omega
+    name: Omega Projects User
+    groups: ['omega']
+    uid: 1000
+    ssh_key:
+      # nishimura yoshitaka ( infra )
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAvFRHxokPMRYy+al6Yow/3ewLYn0HPG4y5BcA/DhY5tuQxtu0m5IUH0l3TTZ0EVRUNe2ReCT5geN3eNLP7LUAqpgeHmkW6Uw5gDgShDxH41mVxAlOEvPYu8jTXKZnezdM6+wWZDKc+97tiEK+EmhRkEeaNuMPbUPBWc0NWRSmOa0T2b0vNFFwxGfPUDtfBY1NLCr7jTV4dWsXT7BikYAyYbACIa7jJG3JriqFdsP9OtG0xfP18DVm+C2A1oDIyL2VFadamwF85OvZecXHiYVoHJKxb3jToi3PHFB/ge8s9jL+Rp+HddmKzk0NKLrnpWjdP2qo0PRoE4JAqElUa3sHUQ== B04987@GRI-0112"
+      # omega ( dev01.griphone.local )
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArwXUtYnePK8N2Jw1mVbSN76L0IBNp65d4GWEFpzeC5ZdwNS0U4v65nLHwf9w0pvS2hjeUpsZ01YpYhAVdYitxSogNVVGOWZSeD8MqQk+zCNT1L3dZndEgqHY5VQJNrwZQFioYFYXvsPGiJgF2JGyr6qMYDrAWeG3j+w80+BMCwAaU59hHxS/61N6ekO4SFfyjNI4WXUZYTtyONazTBoSsjfd7kq+idUE0gQ2p9GXtUTerCqiLoq8wq+MLaFpl3UtOJGIXxnQ5T4PX1YiTMoP3dCE29fViuZWW8yvNcod+Ud9RPDpkYksEOxL7PsqgSZAA0C4DBvl4sWWlAuDzfwhcw== omega@dev01.griphone.local"
+      # kotsuka takafumi
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6b27TebDm96Q2nsqivfPIOnDFERpdYGFkeb9UN9JJKqCWPYB+ZUZ787jRAFNnh1AsG4Unq7usq/bfeZA7ufGBtlh1Qn8PXvk4gsvjw6Ol+SAGeODIPrGbGjEfZWdx5XRVIsucJzeWgyaQUAWyoyGKD1fcN+h196rTLB2QKwjaj5wSgIopsTyFBmz8yG2fqYVheCkLMa3/r/AksOM6RI5XNA14brUzFM9v5J8nRKc4yLlHMSyMekVG1QUk6y5gJcanshdRaCJRyeGgTTzhTg9KyY8Ra26wPpIe0ZWRK8jzwB+yGLHLbUQTQPgZvhXoMdugDSwI5O0NabRTXRWwIycNw=="
+      # omega ( omg-deploy01. for deploy gittag )
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAk0Q6RoAMgvnhYSPO9efwpuo4VG3ivK4H9SNpYq6rSBZv+cLnXRUjEV/z1XAy7N5F7UWVZOOPAmb+bVqXPWgRMwoMsJ12wnc5132q+4bpUCSi7IF9A94sKsBG94slTZd3LuDgSdcAwx4oB3fMcgu8nBkZBkGTW2aZ+b7vQZR3gi4Ro0UKE4Ng7YJnp7iBYxlUx5wy4TQA80nbPDc9HfSwHyWK6tmq0PX8GfoXpPmDQBHZDAzPLpCz7Fz0hMbes7BE1LhUbeqOxRF8hAcyd94ofbkWVvXsS/ImLzTD9w8JPjaLzl5gcvBeAtKqFd1w6iDbCBYjwKuuLNsRHdOlT/9v9w== omega@omg-deploy01"
+
+
+# users_deleted:
+#   - username: bar
+#     name: Bar User
+#     uid: 1002
+
+
+# nginx 設定（デフォルト以外のサイト設定をしない）
+nginx_sites: none
+
+
+# roles/munin 用
+
+# munin server の IP アドレスを許可する
+munin_conf_allow:
+  - 'allow ^10\.35\.87\.100$' # 10.35.87.100 は omg-munin01.gpn-shd-428.a4c.jp
+
+
+# roles/postfix 用
+relayhost: omg-ctl01.gpn-shd-428.a4c.jp
+

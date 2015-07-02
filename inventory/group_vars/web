@@ -1,0 +1,49 @@
+# playbook/ping.yml 用のテスト。
+ping_gv_web: group_vars/web
+
+# web 系サーバの設定ファイル更新用
+group_zzfile_conf:
+# test を送るのはうまくいった
+#  - src: test.j2
+#    dest: /tmp/test
+#    group: adm
+#    para: "ooooookkkkkkkk"
+#  - src: test.j2
+#    dest: /tmp/test2
+#    owner: b04987
+#    para: "OKKKKKKKKKKK"
+  - src:    etc/logrotate.d/httpd
+    dest:  /etc/logrotate.d/httpd
+  - src:    etc/logrotate.d/newrelic-daemon
+    dest:  /etc/logrotate.d/newrelic-daemon
+  - src:    etc/logrotate.d/newrelic-php5
+    dest:  /etc/logrotate.d/newrelic-php5
+  - src:    etc/logrotate.d/newrelic-sysmond
+    dest:  /etc/logrotate.d/newrelic-sysmond
+  - src:    etc/logrotate.d/nginx
+    dest:  /etc/logrotate.d/nginx
+  - src:    etc/logrotate.d/omega-apps
+    dest:  /etc/logrotate.d/omga-apps
+  - src:    etc/logrotate.d/syslog
+    dest:  /etc/logrotate.d/syslog
+  - src:    etc/td-agent/td-agent.conf.prod.web
+    dest:  /etc/td-agent/td-agent.conf
+  - src:    etc/nginx/conf.d/munin.conf
+    dest:  /etc/nginx/conf.d/munin.conf
+  - src:    etc/httpd/conf.d/vhosts.d/munin.conf
+    dest:  /etc/httpd/conf.d/vhosts.d/munin.conf
+  - src:    usr/share/munin/plugins/memcached_connections_
+    dest:  /usr/share/munin/plugins/memcached_connections_
+  - src:    usr/share/munin/plugins/memcached_traffic_
+    dest:  /usr/share/munin/plugins/memcached_traffic_
+  - src:    usr/share/munin/plugins/memcached_items_
+    dest:  /usr/share/munin/plugins/memcached_items_
+  - src:    usr/share/munin/plugins/memcached_hits_
+    dest:  /usr/share/munin/plugins/memcached_hits_
+  - src:    usr/share/munin/plugins/memcached_eviction
+    dest:  /usr/share/munin/plugins/memcached_eviction
+  - src:    usr/share/munin/plugins/memcached_
+    dest:  /usr/share/munin/plugins/memcached_
+  - src:    usr/share/munin/plugins/memcached_requests_
+    dest:  /usr/share/munin/plugins/memcached_requests_
+

@@ -1,0 +1,12 @@
+- debug: msg="git"
+  tags: [git]
+
+- name: clone
+  git:
+    repo: https://github.com/tagomoris/xbuild.git
+    dest: /var/tmp/xbuild
+  register: clone
+  tags: [git]
+
+- debug: var=clone
+  tags: [git]

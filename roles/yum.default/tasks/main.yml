@@ -1,0 +1,34 @@
+---
+
+# install default packages
+
+- name: "* roles/yum.default | tags yum.default"
+  debug:
+  tags: [yum.default]
+
+- name: install
+  yum:
+    name: "{{ item.name }}"
+    state: installed
+    enablerepo: "{{ item.repo | default('') }}"
+  with_items:
+    - { name: git,            repo: ~ }
+    - { name: patch ,         repo: ~ }
+    - { name: bind-utils,     repo: ~ }
+    - { name: mlocate,        repo: ~ }
+    - { name: giflib-devel,   repo: ~ }
+    - { name: libpng-devel,   repo: ~ }
+    - { name: zlib-devel,     repo: ~ }
+    - { name: tmux,           repo: epel }
+    - { name: sshpass,        repo: epel }
+    - { name: mailx ,         repo: ~ }
+    - { name: tree ,          repo: ~ }
+    - { name: telnet,         repo: ~ }
+    - { name: wget,           repo: ~ }
+    - { name: python-passlib, repo: epel }
+    - { name: perl-devel,     repo: ~ }
+  tags: [yum.default]
+
+- name: updatedb ( mlocate update )
+  shell: updatedb
+  tags: [yum.default]

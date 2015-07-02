@@ -1,0 +1,46 @@
+- name: "* roles/fluentd"
+  debug:
+  tags: [fluentd]
+
+- name: fluentd | install
+  yum: name=td-agent enablerepo=treasuredata state=latest 
+  tags: [fluentd]
+
+- name: fluentd | mkdir /etc/td-agent/conf.d
+  file: dest=/etc/td-agent/conf.d state=directory owner=root group=root mode=0755
+  tags: [fluentd]
+
+- name: fluentd | mkdir /var/tmp/fluent_pos 
+  file: dest=/var/tmp/fluent_pos state=directory owner=td-agent group=td-agent mode=0755
+  tags: [fluentd]
+
+- name: fluentd | mkdir /var/tmp/fluent_buf 
+  file: dest=/var/tmp/fluent_buf state=directory owner=td-agent group=td-agent mode=0755
+  tags: [fluentd]
+
+- name: fluentd | /etc/td-agent/td-agent.conf
+  lineinfile: dest=/etc/td-agent/td-agent.conf regexp={{ item.r }} line="{{ item.l }}"
+  with_items:
+    # add include dir
+    - {r: "^include" , l: "include\ conf.d/*.conf" }
+  tags: [fluentd]
+
+- name: fluentd | make conf file to conf.d
+  template:
+    dest:  /etc/td-agent/conf.d/{{ item.confd_name }}.conf
+    src:   conf.d/{{ item.template_name }}.conf.j2
+    group: root
+    owner: root
+    mode:  0644
+  with_items: fluentd_file_conf
+  when: fluentd_file_conf is defined
+  tags: ['fluentd']
+
+- name: fluentd | start fluentd (td-agent) service
+  service:
+    name:  td-agent
+    state: started
+    enabled: yes
+  ignore_errors: true
+  tags: ['fluentd']
+

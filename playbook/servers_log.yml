@@ -1,0 +1,5 @@
+- hosts: log
+  sudo: yes
+  roles:
+    - fluentd
+    - { role: mysql , mysql_community_client: "mysql-community-client" }

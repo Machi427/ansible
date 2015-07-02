@@ -1,0 +1,5 @@
+- hosts: redis
+  sudo: yes
+  roles:
+    - redis
+    - heartbeat

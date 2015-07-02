@@ -1,0 +1,40 @@
+#!/bin/bash
+########################################
+# /usr/share/munin/plugins/memcached-eviction
+########################################
+
+if [ "$1" = "autoconf" ]; then
+
+        MEMPID=`cat /var/run/memcached/memcached.pid`
+        ps ${MEMPID} >/dev/null 2>&1
+        if [ $? -eq 0 ] ; then
+            echo "yes"
+            exit 0
+        else
+            echo "no"
+            exit 1
+        fi
+fi
+
+if [ "$1" = "config" ]; then
+
+        # Master Settings
+        echo 'graph_title Memcache - Evictions count'
+        echo "graph_order ev"
+        echo "graph_args --base 1000"
+        echo 'graph_vlabel Counts'
+        echo 'graph_info This graph shows Temperature'
+        echo 'graph_category memcache'
+        echo 'graph_scale no'
+
+        # Graph Settings
+        echo 'ev.min 0'
+        echo 'ev.label Cache Evictions'
+        echo 'ev.draw LINE2'
+        echo "ev.info Cache Evictions Count"
+
+        exit 0
+fi
+
+        echo -n "ev.value "
+        /usr/bin/memcached-tool 127.0.0.1 stats|grep -i eviction|awk '{print $2}'

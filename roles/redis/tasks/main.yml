@@ -1,0 +1,91 @@
+- name: "* roles/redis"
+  debug:
+
+- name: Install | from yum
+  # memo libjemalloc.so.3 が必要になるので epel を起こしている
+  yum: name={{ item }} state=installed enablerepo=remi,epel
+  register: redis_install
+  with_items:
+    - redis
+    # memo 他だと redis-server だけど、CentOs では redis で一式入る
+  tags: ['redis']
+
+- name: /var/lib/redis [ data directory ]
+  file:
+    state: directory
+    path:  "{{ item.datadir | default('/var/lib/redis') }}"
+    owner: "{{ item.user    | default('redis') }}"
+    group: "{{ item.group   | default('root') }}"
+    mode:  0755
+    recurse: yes
+  with_items: redis_conf
+  when: redis_conf is defined
+  tags: ['redis']
+
+- name: /var/log/redis [ log directory ]
+  file:
+    state: directory
+    path:  "{{ item.logdir | default('/var/log/redis') }}"
+    owner: "{{ item.user   | default('redis') }}"
+    group: "{{ item.group  | default('root') }}"
+    mode:  0755
+    recurse: yes
+  with_items: redis_conf
+  when: redis_conf is defined
+  tags: ['redis']
+
+- name: /var/run/redis [ pid directory ]
+  file:
+    state: directory
+    path:  "{{ item.piddir | default('/var/run/redis') }}"
+    owner: "{{ item.user   | default('redis') }}"
+    group: "{{ item.group  | default('root') }}"
+    mode:  0755
+    recurse: yes
+  with_items: redis_conf
+  when: redis_conf is defined
+  tags: ['redis']
+
+- name: /etc/init.d/redis
+  template:
+    dest:  /etc/init.d/{{ item.filename }}
+    src:   init.d/redis.j2
+    group: root
+    owner: root
+    mode:  0755
+  with_items: redis_conf
+  when: redis_conf is defined
+  tags: ['redis']
+
+- name: /etc/sysconfig/redis
+  template:
+    dest:  /etc/sysconfig/{{ item.filename }}
+    src:   sysconfig/redis.j2
+    group: root
+    owner: root
+    mode:  0644
+  with_items: redis_conf
+  when: redis_conf is defined
+  tags: ['redis']
+
+- name: /etc/redis.conf
+  template:
+    dest:  /etc/{{ item.filename }}.conf
+    src:   redis.conf.j2
+    group: root
+    owner: root
+    mode:  0644
+  with_items: redis_conf
+  when: redis_conf is defined
+  tags: ['redis']
+
+- name: ensure started redis service
+  service:
+    name: "{{ item.filename }}"
+    state: started
+    enabled: yes
+  with_items: redis_conf
+  when: redis_conf is defined
+  ignore_errors: true
+  tags: ['redis']
+

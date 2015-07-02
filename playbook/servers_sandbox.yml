@@ -1,0 +1,22 @@
+# プロジェクトのsandbox環境を作る 
+#
+# ansible-playbook servers_sandbox.yml
+
+- hosts: ifg_sandbox
+  sudo: yes
+  roles:
+    - { role: nginx,
+        nginx_sandbox_server: 1
+      }
+    # server flg は inventory/group_vars , host_vars を参照すること
+    - { role: httpd,
+        httpd_sandbox_server: 1
+      }
+    - mysql
+    - redis
+    - memcached
+    - nodejs
+    - fluentd
+    - phpmyadmin
+    - phpredisadmin
+    - phpmemcachedadmin

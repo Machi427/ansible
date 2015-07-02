@@ -1,0 +1,22 @@
+- name: "* roles/phpredisadmin"
+  debug:
+  tags: [phpredisadmin]
+
+- name: phpredisadmin | git clone 
+  git: repo=https://github.com/ErikDubbelboer/phpRedisAdmin.git
+       dest=/usr/local/share/phpRedisAdmin
+  tags: [phpredisadmin]
+
+- name: phpredisadmin | git clone predis
+  git: repo=https://github.com/nrk/predis.git
+       dest=/usr/local/share/phpRedisAdmin/vendor
+  tags: [phpredisadmin]
+
+- name: phpredisadmin | link to nginx
+  file: src=/usr/local/share/phpRedisAdmin
+        dest=/usr/share/nginx/pra
+        owner=root
+        group=root
+        state=link
+  tags: [phpredisadmin]
+

@@ -1,0 +1,49 @@
+- name: "* roles/memcached"
+  debug:
+  tags: [memcached]
+
+- name: install packages
+  yum:
+    name: "memcached"
+    state: present
+    enablerepo: "epel"
+  tags: [memcached]
+
+- name: /etc/init.d/memcached
+  template:
+    dest: /etc/init.d/{{ item.filename }}
+    src: init.d/memcached.j2
+    group: root
+    owner: root
+    mode: 0755
+  with_items: memcached_conf
+  when: memcached_conf is defined
+  tags: [memcached]
+
+- name: /etc/sysconfig/memcached
+  template:
+    dest: /etc/sysconfig/{{ item.filename }}
+    src: sysconfig/memcached.j2
+    group: root
+    owner: root
+    mode: 0644
+  with_items: memcached_conf
+  when: memcached_conf is defined
+  tags: [memcached]
+
+- name: ensure started memcached service
+  service:
+    name: "{{ item.filename }}"
+    state: started
+    enabled: yes
+  with_items: memcached_conf
+  when: memcached_conf is defined
+  ignore_errors: true
+  tags: [memcached]
+
+- name: install php-pecl-memcached
+  yum:
+    name: "php-pecl-memcached"
+    state: present
+    enablerepo: "remi,remi-php55"
+  tags: [memcached]

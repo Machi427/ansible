@@ -1,0 +1,32 @@
+---
+
+# unbound setup
+
+- name: "* roles/unbound | tags=unbound"
+  debug:
+  tags: [unbound]
+
+- name: install unbound
+  yum:
+    name:       unbound
+    state:      present
+    enablerepo: epel
+  tags: [unbound]
+
+- name: /etc/resolv.conf
+  lineinfile:
+    dest:         /etc/resolv.conf
+    regexp:       "^nameserver 127.0.0.1"
+    line:         'nameserver 127.0.0.1'
+    insertbefore: "^nameserver"
+  tags: [unbound]
+
+- name: service unbound start
+  service:
+    name:    unbound
+    state:   restarted
+    enabled: yes
+  ignore_errors: true
+  changed_when: no
+  tags: [unbound]
+

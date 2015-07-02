@@ -1,0 +1,59 @@
+h1. Ansible によるサーバ管理のメモ
+
+* コントロール優先で ansible.cfg はカレントディレクトリに用意	
+
+h2. inventory
+
+* inventory/ に環境毎、グループ毎に分割して配置
+* Ansible の仕様により、 group_vars, host_vars を inventory 下に配置
+
+h2. ansible
+
+* ssh
+
+導通前に ssh でサーバ接続し、コネクションを確認する
+
+* 導通
+ansible -i <inventory> <hostname> -m ping
+
+* fact 取得
+ansible -i <inventory> <hostname> -m setup
+
+* コマンド ( ex uname )
+ansible -i <inventory> <hostname> -a 'uname -a'
+
+
+h2. ansible-doc
+
+* module help ( ex yum )
+ansible-doc yum
+
+
+h2. ansible-playbook
+
+* 文法チェック
+ansible-playbook playbook/servers_local.yml --syntax-check
+
+* 対象ホストを確認する
+ansible-playbook playbook/servers_local.yml --list-hosts
+
+* 対象タスクを確認する
+ansible-playbook playbook/servers_local.yml --list-task
+
+* Dry run
+ansible-playbook playbook/servers_local.yml --check
+
+* step 実行
+ansible-playbook playbook/servers_local.yml --step
+
+* ホスト指定実行
+ansible-playbook playbook/servers_local.yml -l <hostname>
+
+* タグ指定実行
+ansible-playbook playbook/servers_local.yml --tags=XXX
+
+* 接続テスト (インベントリやホストの切り替え後に接続テストする）
+ansible-playbook playbook/ping.yml
+
+
+

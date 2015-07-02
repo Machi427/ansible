@@ -1,0 +1,70 @@
+- name: "* roles/nginx with nginx_sandbox_server"
+  debug:
+  tags: [nginx, nginx_sandbox]
+
+- name: mkdir /etc/nginx/conf.d/include
+  file: path=/etc/nginx/conf.d/include state=directory mode=0755
+  when: (nginx_sandbox_server is defined and nginx_sandbox_server == 1)
+  notify: 
+   - restart nginx
+  tags: [nginx, nginx_sandbox]
+
+- name: Copy common configuration file 
+  template: src=include/common-dev.conf.j2 dest=/etc/nginx/conf.d/include/common-dev.conf
+  when: (nginx_sandbox_server is defined and nginx_sandbox_server == 1)
+  notify: 
+   - restart nginx
+  tags: [nginx, nginx_sandbox]
+
+- name: Copy the nginx default configuration file 
+  template: src=default.conf.sandbox.j2 dest=/etc/nginx/conf.d/default.conf
+  when: (nginx_sandbox_server is defined and nginx_sandbox_server == 1)
+  notify: 
+   - restart nginx
+  tags: [nginx, nginx_sandbox]
+
+- name: Copy access control file 
+  template: src=access_ctl.j2 dest=/etc/nginx/conf.d/access_ctl
+  when: (nginx_sandbox_server is defined and nginx_sandbox_server == 1)
+  notify: 
+   - restart nginx
+  tags: [nginx, nginx_sandbox]
+
+- name: Copy htpasswd file 
+  template: src=htpasswd.j2 dest=/etc/nginx/htpasswd
+  when: (nginx_sandbox_server is defined and nginx_sandbox_server == 1)
+  notify: 
+   - restart nginx
+  tags: [nginx, nginx_sandbox]
+
+#- name: Create the configurations for local pages
+#  template: src=default/{{ item }} dest=/etc/nginx/conf.d/default/{{ item }}
+#  with_items:
+#    - mem.conf
+#    - pma.conf
+#    - pra.conf
+#    - omega.conf
+#  when: (nginx_sandbox_server is defined and nginx_sandbox_server == 1)
+#  notify: 
+#   - restart nginx
+#  tags: [nginx, nginx_sandbox]
+
+#- name: link to nginx
+#  file: src=/usr/share/omega/omega/webroot
+#        dest=/usr/share/nginx/omg
+#        owner=root
+#        group=root
+#        state=link
+#  when: (nginx_sandbox_server is defined and nginx_sandbox_server == 1)
+#  tags: [nginx, nginx_sandbox]
+
+- name: Copy the nginx default html file 
+  template: src=index.html.j2 dest=/usr/share/nginx/html/index.html
+  when: (nginx_sandbox_server is defined and nginx_sandbox_server == 1)
+  tags: [nginx, nginx_sandbox, nginx-sandbox-content]
+
+- name: Copy the nginx default css file 
+  template: src=prj.css.j2 dest=/usr/share/nginx/html/prj.css
+  when: (nginx_sandbox_server is defined and nginx_sandbox_server == 1)
+  tags: [nginx, nginx_sandbox, nginx-sandbox-content]
+

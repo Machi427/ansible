@@ -1,0 +1,40 @@
+- name: "* roles/httpd with httpd_local_server"
+  debug:
+  tags: [httpd, httpd_local]
+
+#- name: mkdir /etc/httpd/conf.d/vhosts
+#  file: path=/etc/httpd/conf.d/vhosts state=directory mode=0755
+#  when: (httpd_local_server is defined and httpd_local_server == 1)
+#  notify: 
+#   - httpd graceful
+#  tags: [httpd, httpd_local]
+
+#- name: Copy the httpd default configuration file 
+#  template: src=default.conf.local.j2 dest=/etc/httpd/conf.d/default.conf
+#  when: (httpd_local_server is defined and httpd_local_server == 1)
+#  notify: 
+#   - httpd graceful
+#  tags: [httpd, httpd_local]
+
+- name: Create the configurations for local pages
+  template: src=local/{{ item }} dest=/etc/httpd/conf.d/{{ item }}
+  with_items:
+    - php.conf
+    - mem.conf
+    - pma.conf
+    - pra.conf
+    - omega.conf
+  when: (httpd_local_server is defined and httpd_local_server == 1)
+  notify: 
+   - httpd graceful
+  tags: [httpd, httpd_local]
+
+#- name: link to httpd
+#  file: src=/usr/share/omega/omega/webroot
+#        dest=/usr/share/httpd/omg
+#        owner=root
+#        group=root
+#        state=link
+#  when: (httpd_local_server is defined and httpd_local_server == 1)
+#  tags: [httpd, httpd_local]
+

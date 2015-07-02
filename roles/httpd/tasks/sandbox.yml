@@ -1,0 +1,63 @@
+- name: "* roles/httpd with httpd_sandbox_server"
+  debug:
+  tags: [httpd, httpd_sandbox]
+
+- name: mkdir /etc/httpd/conf.d/vhosts.d
+  file: path=/etc/httpd/conf.d/vhosts.d state=directory mode=0755
+  when: (httpd_sandbox_server is defined and httpd_sandbox_server == 1)
+  notify: 
+   - httpd graceful
+  tags: [httpd, httpd_sandbox]
+
+- name: Create the configurations for sites
+  template: src=sandbox/vhosts.conf.j2 dest=/etc/httpd/conf.d/vhosts.d/{{ item['server']['file_name'] }}
+  with_items: httpd_sites
+  when: (httpd_sandbox_server is defined and httpd_sandbox_server == 1)
+  notify:
+   - httpd graceful
+  tags: [httpd, httpd_sandbox]
+
+- name: mkdir /var/www/vhosts/server_name
+  file: path=/var/www/vhosts/{{ item['server']['server_name'] }} state=directory mode=0755 owner=omega group=omega
+  with_items: httpd_sites
+  when: (httpd_sandbox_server is defined and httpd_sandbox_server == 1)
+  notify:
+   - httpd graceful
+  tags: [httpd, httpd_sandbox]
+
+- name: mkdir /var/log/httpd/server_name
+  file: path=/var/log/httpd/{{ item['server']['server_name'] }} state=directory mode=0755
+  with_items: httpd_sites
+  when: (httpd_sandbox_server is defined and httpd_sandbox_server == 1)
+  notify:
+   - httpd graceful
+  tags: [httpd, httpd_sandbox]
+
+- name: Copy default site
+  template: src=sandbox/00-default.conf.j2 dest=/etc/httpd/conf.d/vhosts.d/00-default.conf
+  when: (httpd_sandbox_server is defined and httpd_sandbox_server == 1)
+  notify: 
+   - httpd graceful
+  tags: [httpd, httpd_sandbox]
+
+- name: Create the configurations for local pages
+  template: src=sandbox/{{ item }} dest=/etc/httpd/conf.d/{{ item }}
+  with_items:
+    - php.conf
+    - mem.conf
+    - pma.conf
+    - pra.conf
+  when: (httpd_sandbox_server is defined and httpd_sandbox_server == 1)
+  notify: 
+   - httpd graceful
+  tags: [httpd, httpd_sandbox]
+
+#- name: link to httpd
+#  file: src=/usr/share/omega/omega/webroot
+#        dest=/usr/share/httpd/omg
+#        owner=root
+#        group=root
+#        state=link
+#  when: (httpd_sandbox_server is defined and httpd_sandbox_server == 1)
+#  tags: [httpd, httpd_sandbox]
+

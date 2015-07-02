@@ -1,0 +1,54 @@
+- name: "* roles/httpd"
+  debug:
+  tags: ['httpd']
+
+- name: install packages
+  yum:
+    name: "{{ item.name }}"
+    state: present
+    enablerepo: "{{ item.enablerepo | default('') }}"
+  with_items: httpd_install_packages
+  tags: ['httpd']
+
+- name: configure httpd.conf
+  template:
+    dest: /etc/httpd/conf/httpd.conf
+    src: httpd.conf.j2
+    group: root
+    owner: root
+    mode: 0644
+  notify: httpd graceful
+  tags: ['httpd']
+
+- name: mkdir /etc/httpd/conf.d/vhosts.d
+  file: path=/etc/httpd/conf.d/vhosts.d state=directory mode=0755
+  notify:
+   - httpd graceful
+  tags: [httpd]
+
+- name: ensure started httpd service
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+  tags: ['httpd']
+
+# for local server
+- include: local.yml
+  when: (httpd_local_server is defined and httpd_local_server == 1)
+  tags: ['httpd']
+
+# for sandbox server
+- include: sandbox.yml
+  when: (httpd_sandbox_server is defined and httpd_sandbox_server == 1)
+  tags: ['httpd']
+
+# for staging server
+- include: staging.yml
+  when: (httpd_staging_server is defined and httpd_staging_server == 1)
+  tags: ['httpd']
+
+# for production server
+- include: production.yml
+  when: (httpd_prod_server is defined and httpd_prod_server == 1)
+  tags: ['httpd']

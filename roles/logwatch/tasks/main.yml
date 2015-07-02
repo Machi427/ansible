@@ -1,0 +1,13 @@
+- name: "* roles/logwatch | tags logwatch"
+  debug:
+  tags: [logwatch]
+
+- name: install
+  yum:
+    name: logwatch
+    state: installed
+  tags: [logwatch]
+
+- name: "edit /etc/logwatch/conf/logwatch.conf Manually"
+  debug:
+  tags: [logwatch]

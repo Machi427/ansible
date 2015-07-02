@@ -1,0 +1,49 @@
+# omg-mem01m & omg-mem01s Hearbeat & Pacemaker configure file
+# root@ > crm configure load update omg-mem01m.crm
+# root@ > crm configure show
+
+primitive res_Mailto ocf:heartbeat:MailTo \
+        params email="omg-infra@griphone.co.jp" subject="(OMEGA)" \
+        op start interval="0" timeout="60s" on_fail="restart" \
+        op monitor interval="10s" timeout="60s" on_fail="restart" \
+        op stop interval="0" timeout="60s" on_fail="block"
+
+# Virtual IP Addr 
+primitive res_VIP_CA1 ocf:heartbeat:IPaddr2 \
+        params ip="10.35.83.211" nic="eth0" cidr_netmask="24" \
+        op start interval="0" timeout="60s" on_fail="restart" \
+        op stop interval="0" timeout="60s" on_fail="block" \
+        op monitor interval="30s" timeout="60s" on_fail="restart"
+
+# Double start prevention(VIPcheck)
+primitive res_VIPcheck_CA1 ocf:heartbeat:VIPcheck \
+        params target_ip="10.35.83.211" count="1" wait="10" \
+        op start interval="0" timeout="90s" on_fail="block" \
+        op stop interval="0" timeout="90s" on_fail="block"
+
+primitive res_memcached ocf:heartbeat:memcached \
+        op start interval="0" timeout="60s" on_fail="restart" \
+        op monitor interval="30s" timeout="60s" on_fail="restart" \
+        op stop interval="0"
+
+group rg_CA res_Mailto res_VIPcheck_CA1 res_VIP_CA1 res_memcached
+
+location group_cache-location rg_CA \
+        rule $id="group_cache-location-rule" 200: #uname eq omg-mem01m \
+        rule $id="group_cache-location-rule-0" 100: #uname eq omg-mem01s \
+        rule $id="group_cache-location-rule-1" -inf: defined default_ping_set and default_ping_set lt 100
+
+property $id="cib-bootstrap-options" \
+        dc-version="1.0.12-066152e" \
+        cluster-infrastructure="Heartbeat" \
+        expected-quorum-votes="2" \
+        no-quorum-policy="ignore" \
+        stonith-enabled="false" \
+        startup-fencing="false" \
+        dc-deadtime="20s" \
+        last-lrm-refresh="1400215707"
+
+rsc_defaults $id="rsc-options" \
+        resource-stickiness="INFINITY" \
+        migration-threshold="1"
+

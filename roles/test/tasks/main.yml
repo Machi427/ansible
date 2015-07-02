@@ -1,0 +1,10 @@
+- debug: msg="vars_test01 is {{ vars_test01 }}"
+- debug: msg="vars_test02 is {{ vars_test02 }}"
+- debug: msg="vars_test03 is {{ vars_test03 }}"
+- debug: msg="vars_test04 is {{ vars_test04 }}"
+- debug: msg="vars_test05 is {{ vars_test05 }}"
+- debug: msg="vars_test06 is {{ vars_test06 }}"
+
+- include: var.yml
+
+- include: module_git.yml

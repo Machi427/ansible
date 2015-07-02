@@ -1,0 +1,6 @@
+#- hosts: mem
+- hosts: all
+  sudo: yes
+  roles:
+    - memcached
+    - heartbeat

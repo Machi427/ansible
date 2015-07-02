@@ -1,0 +1,12 @@
+# 全てのサーバで共通の処理を最後に実行する
+# 主に munin,zabbix のエージェントのインストール、追加要件の処理を行う。
+# 
+# ansible-playbook playbook/phase09.yml
+
+- hosts: all
+  sudo: yes
+  roles:
+    - munin
+    - zabbix
+    - fluentd
+

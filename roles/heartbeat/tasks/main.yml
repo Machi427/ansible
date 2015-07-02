@@ -1,0 +1,140 @@
+---
+
+# heartbeat install
+# 各機のファイルがある場合に転送する
+
+- name: "* roles/heartbeat tags=heartbeat, copy_crm"
+  debug:
+  tags: [heartbeat]
+
+- name: check
+  stat: path=/etc/yum.repos.d/pacemaker.repo
+  register: is_pacemaker
+  tags: [heartbeat, copy_crm]
+
+- name: puts pacemaker.repo
+  copy:
+    src:   pacemaker-1.0.13-2.1.el6.x86_64.repo.tar.gz
+    dest:  /tmp/pacemaker-1.0.13-2.1.el6.x86_64.repo.tar.gz
+    mode:  0644
+    owner: root
+    group: root
+  when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: unarchive
+  unarchive:
+    src:   /tmp/pacemaker-1.0.13-2.1.el6.x86_64.repo.tar.gz
+    dest:  /tmp
+    copy:  no
+  when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: install pacemaker.repo
+  shell: yum -c pacemaker.repo install -y heartbeat-3.0.5 pacemaker-1.0.13 pm_extras-1.5
+  args:
+    chdir: /tmp/pacemaker-1.0.13-2.1.el6.x86_64.repo
+    creates: /etc/yum.repo.d/pacemaker.repo
+  when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: copy OCF RA memcached
+  copy:
+    src:   ra_memcached
+    dest:  /usr/lib/ocf/resource.d/heartbeat/memcached
+    mode:  0755
+    owner: root
+    group: root
+  when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: copy OCF RA redis-simple
+  copy:
+    src:   ra_redis-simple
+    dest:  /usr/lib/ocf/resource.d/heartbeat/redis-simple
+    mode:  0755
+    owner: root
+    group: root
+  when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: set /etc/ha.d/ha.cf
+  template:
+    src:   ha.cf.j2
+    dest:  /etc/ha.d/ha.cf
+    mode:  0644
+    owner: root
+    group: root
+  when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: set /etc/ha.d/authkeys
+  copy:
+    src:   authkeys
+    dest:  /etc/ha.d/authkeys
+    mode:  0600
+    owner: root
+    group: root
+  when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: always chkconfig heartbeat off
+  service: name=heartbeat enabled=no
+  ignore_errors: yes
+  tags: [heartbeat]
+
+- name: "copy crm configure file. /tmp"
+  copy:
+    src:   "{{ item }}"
+    dest:  "/tmp/{{ ansible_hostname }}.crm"
+    owner: root
+    group: root
+    mode:  0644
+  with_first_found:
+    - files:
+      - "{{ ansible_hostname }}.crm"
+  when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat, copy_crm]
+
+
+
+- name: "lock on nextwork. touch /etc/yum.repo.d/pacemaker.repo"
+  file:
+    path:  /etc/yum.repos.d/pacemaker.repo
+    state: touch
+    owner: root
+    group: root
+    mode:  0644
+  when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat, copy_crm]
+
+- name: "WARN!!!! edit /etc/ha.d/ha.cf"
+  debug: msg="sudo vi /etc/ha.d/ha.cf"
+  changed_when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: "WARN!!!! edit /etc/init.d/heartbeat your self. don't forget."
+  debug: msg="sudo vi /etc/init.d/heartbeat   HA_BIN=/usr/lib64/heartbeat"
+  changed_when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: "WARN!!!! remove configure. if you want reconfigure."
+  debug: msg="sudo rm -f /var/lib/heartbeat/crm/*"
+  changed_when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: "WARN!!!! check start memcached your self."
+  debug: msg="ps -ef | grep memcached"
+  changed_when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: "WARN!!!! start heartbeat your self."
+  debug: msg="ps -ef | grep heartbeat"
+  changed_when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+
+- name: "WARN!!!! configure crm. look at roles/heartbeat/files."
+  debug: msg="sudo crm configure load update /tmp/{{ ansible_hostname }}.crm"
+  changed_when: is_pacemaker.stat.md5 is not defined
+  tags: [heartbeat]
+

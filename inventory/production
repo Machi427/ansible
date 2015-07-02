@@ -1,0 +1,34 @@
+[ifg_production]
+
+[ifg_production:children]
+web
+mem
+redis
+db
+admin
+
+[web]
+omg-web[00:30]
+
+[mem]
+omg-mem01m
+omg-mem01s
+
+[redis]
+omg-red01m
+omg-red01s
+
+[db]
+omg-db0[1:9]m
+omg-db0[1:9]s
+# DB Backup Server
+omg-db01b
+# DB MHA Manager
+omg-db01a
+omg-db02a
+omg-db03a
+
+[admin]
+omg-mng01
+omg-mng02
+

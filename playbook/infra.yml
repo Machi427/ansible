@@ -1,0 +1,15 @@
+# サーバ運用用途のプレイブック
+
+- hosts: all
+  sudo: yes
+  vars_prompt:
+    - name: "root_mail_address"
+      prompt: "Enter destination e-mail address of the root user "
+      private: no
+      default: "none"
+      tags: [mail.aliases]
+  roles:
+    # - hosts
+    - users
+    - logmon
+    - mail.aliases

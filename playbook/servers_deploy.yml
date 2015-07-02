@@ -1,0 +1,9 @@
+- hosts: deploy
+  sudo: yes
+  roles:
+    - capistrano
+    - { role: servers_deploy,
+        test: test
+      }
+
+# 運用用ユーザ（omega）の秘密鍵は手動で別途送りつけてから実行すること

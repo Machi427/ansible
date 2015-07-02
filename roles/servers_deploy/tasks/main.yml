@@ -1,0 +1,18 @@
+---
+
+- name: "* roles/servers_deploy tags=deploy"
+  debug:
+  tags: [deploy]
+
+- name: mkdir git directory
+  file: path=git state=directory
+  sudo_user: omega
+  tags: [deploy]
+
+- name: git clone omega-tools
+  # git: repo=https://gitlab.griphone.co.jp/omega/omega-tools.git dest=/home/omega/git accept_hostkey=yes
+  git: repo=git@gitlab.griphone.co.jp:omega/omega-tools.git dest=/home/omega/git/omg-tools accept_hostkey=yes
+  sudo_user: omega
+  tags: [deploy]
+
+

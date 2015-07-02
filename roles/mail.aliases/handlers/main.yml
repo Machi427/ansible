@@ -1,0 +1,5 @@
+---
+
+- name: update_aliases
+  command: newaliases
+  tags: [mail.aliases]

@@ -1,0 +1,50 @@
+# {{ansible_managed}}
+<VirtualHost *:8080>
+    ServerName {{item.server.sb_name}}.omg.griphone.co.jp
+    ErrorLog   logs/{{item.server.sb_name}}.omg.griphone.co.jp/{{item.server.sb_name}}.omg.griphone.co.jp-error_log
+    CustomLog  logs/{{item.server.sb_name}}.omg.griphone.co.jp/{{item.server.sb_name}}.omg.griphone.co.jp-access_log combined
+
+    <IfModule php5_module>
+        # php_value newrelic.appname "{{item.server.sb_name}}"
+    </IfModule>
+
+    # httpd.conf の error alias を無効化する。
+    Alias "/error/" "/var/www/vhosts/{{item.server.sb_name}}.omg.griphone.co.jp/omega/current/webroot/error/"
+
+    DocumentRoot "/var/www/vhosts/{{item.server.sb_name}}.omg.griphone.co.jp/omega/current/webroot"
+    <Directory "/var/www/vhosts/{{item.server.sb_name}}.omg.griphone.co.jp/omega/current/webroot">
+        Options FollowSymLinks
+        AllowOverride All
+        Order Deny,Allow
+        Deny from all
+        Allow from 127.0.0.1
+
+        SetEnv MY_HOST {{ item.server.sb_name }}
+
+        # index.php を表示させない
+        <IfModule mod_rewrite.c>
+            RewriteEngine On
+            RewriteBase /
+
+            # カード画像
+            # URI: /encoded/*
+            RewriteCond %{REQUEST_URI}  ^/encoded/.*$
+            RewriteCond %{REQUEST_URI} !^/(index\.php|image_loader\.php)
+            RewriteRule ^encoded/(.*)$ image_loader.php?t=$1 [L]
+
+            # その他
+            RewriteCond %{REQUEST_FILENAME} !-f
+            #RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteCond %{REQUEST_URI} !^/(index\.php|image_loader\.php|xhprof|w3c-validator)
+            RewriteRule ^(.*)$ index.php/$1 [L]
+        </IfModule>
+    </Directory>
+
+    Alias "/xhprof/"    "/usr/share/xhprof/xhprof_html/"
+    <Directory "/usr/share/xhprof">
+        Order Deny,Allow
+        Deny from all
+        Allow from 127.0.0.1
+    </Directory>
+</VirtualHost>
+

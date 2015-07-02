@@ -1,0 +1,9 @@
+- name: "* roles/ant | tags ant"
+  debug:
+  tags: [ant]
+
+- name: install
+  yum: name=ant
+       state=present
+  tags: [ant]
+

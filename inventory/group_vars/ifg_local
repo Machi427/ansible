@@ -1,0 +1,57 @@
+# playbook/ping.yml 用のテスト。
+ping_gv_ifg_local: group_vars/ifg_local
+
+# roles/memcached 用設定
+memcached_conf:
+  - filename:  memcached
+    port:      11211
+    user:      memcached
+    maxconn:   1024
+    cachesize: 64
+    options:   ""
+  - filename:  memcached-11212
+    port:      11212
+  - filename:  memcached-11213
+    port:      11213
+
+# roles/redis 用設定
+redis_conf:
+  - filename: redis
+    logfile:  "/var/log/redis/redis.log"
+    port:     6379
+  - filename: redis-6380
+    logfile:  "/var/log/redis/redis-6380.log"
+    port:     6380
+
+
+
+# roles/fluentd 用設定 データはまだダミー
+fluentd_file_conf:
+  - confd_name:    web.apache.access
+    tag:          "web.apache.access.${hostname}"
+    template_name: source
+    path:                        /var/log/httpd/gang-trump.gree-pf.net/gang-trump.gree-pf.net-access_log
+    pos_file: /var/tmp/fluent_pos/var/log/httpd/gang-trump.gree-pf.net/gang-trump.gree-pf.net-access_log.pos
+    rotate_wait: 100
+  - confd_name:    web.apache.error
+    tag:          "web.apache.error.${hostname}"
+    template_name: source
+    path:                        /var/log/httpd/gang-trump.gree-pf.net/gang-trump.gree-pf.net-error_log
+    pos_file: /var/tmp/fluent_pos/var/log/httpd/gang-trump.gree-pf.net/gang-trump.gree-pf.net-error_log.pos
+
+  - confd_name:    web.nginx.access
+    tag:          "web.nginx.access.${hostname}"
+    template_name: source
+    path:                        /var/log/nginx/gang-trump.gree-pf.net/gang-trump.gree-pf.net-access_log
+    pos_file: /var/tmp/fluent_pos/var/log/nginx/gang-trump.gree-pf.net/gang-trump.gree-pf.net-access_log.pos
+  - confd_name:    web.nginx.error
+    tag:          "web.nginx.error.${hostname}"
+    template_name: source
+    path:                        /var/log/nginx/gang-trump.gree-pf.net/gang-trump.gree-pf.net-error_log
+    pos_file: /var/tmp/fluent_pos/var/log/nginx/gang-trump.gree-pf.net/gang-trump.gree-pf.net-error_log.pos
+
+  - confd_name:    match.web
+    template_name: match
+
+# roles/postfix 用
+relayhost: none

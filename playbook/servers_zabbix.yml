@@ -1,0 +1,7 @@
+- hosts: zabbix
+  sudo: yes
+  roles:
+    - { role: zabbix,
+        is_zabbix_server: 1,
+        is_zabbix_server_force: 1
+      }

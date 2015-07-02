@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+/var/log/cron
+/var/log/maillog
+/var/log/messages
+/var/log/secure
+/var/log/spooler
+{
+    create 0644
+    weekly
+    delaycompress
+    compress
+    rotate 13
+    sharedscripts
+    postrotate
+	/bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+}

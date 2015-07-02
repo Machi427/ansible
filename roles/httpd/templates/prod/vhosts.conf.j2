@@ -1,0 +1,55 @@
+# {{ansible_managed}}
+<VirtualHost *:{{item.server.port}}>
+    ServerName {{item.server.server_name}}
+
+    # munin status check is no logging.
+    SetEnvIf Request_URI "/server-status" no_log
+    # internal dummy connection is no logging.
+    SetEnvIf User-Agent "Apache (internal dummy connection)" no_log
+    ErrorLog   logs/{{item.server.server_name}}/{{item.server.server_name}}-error_log
+    CustomLog  logs/{{item.server.server_name}}/{{item.server.server_name}}-access_log combined env=!no_log
+
+    <IfModule php5_module>
+        # php_value newrelic.appname "{{item.server.sb_name}}"
+    </IfModule>
+
+    # httpd.conf の error alias を無効化する。
+    Alias "/error/" "/var/www/vhosts/{{item.server.server_name}}/omega/current/webroot/error/"
+
+    DocumentRoot "/var/www/vhosts/{{item.server.alt_docroot|default(item.server.server_name)}}/omega/current/webroot"
+    <Directory "/var/www/vhosts/{{item.server.alt_docroot|default(item.server.server_name)}}/omega/current/webroot">
+        Options FollowSymLinks
+        AllowOverride All
+        Order Deny,Allow
+        Deny from all
+        Allow from 127.0.0.1
+
+        SetEnv MY_HOST {{ ansible_hostname }}
+
+        # index.php を表示させない
+        <IfModule mod_rewrite.c>
+            RewriteEngine On
+            RewriteBase /
+
+            # カード画像
+            # URI: /encoded/*
+            RewriteCond %{REQUEST_URI}  ^/encoded/.*$
+            RewriteCond %{REQUEST_URI} !^/(index\.php|image_loader\.php)
+            RewriteRule ^encoded/(.*)$ image_loader.php?t=$1 [L]
+
+            # その他
+            RewriteCond %{REQUEST_FILENAME} !-f
+            #RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteCond %{REQUEST_URI} !^/(index\.php|image_loader\.php|xhprof|w3c-validator)
+            RewriteRule ^(.*)$ index.php/$1 [L]
+        </IfModule>
+    </Directory>
+
+    Alias "/xhprof/"    "/usr/share/xhprof/xhprof_html/"
+    <Directory "/usr/share/xhprof">
+        Order Deny,Allow
+        Deny from all
+        Allow from 127.0.0.1
+    </Directory>
+</VirtualHost>
+

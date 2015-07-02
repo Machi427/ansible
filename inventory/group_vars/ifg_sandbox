@@ -1,0 +1,109 @@
+# playbook/ping.yml 用のテスト。
+ping_gv_ifg_sandbox: group_vars/ifg_sandbox
+
+# roles/nginx 用設定
+nginx_rlimit_nofile: 4096
+nginx_max_clients: 2048
+nginx_http_pre_params:
+  charset:           "utf-8"
+  "log_format  main": '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for"'
+  "log_format  gzip": '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$gzip_ratio"'
+  "log_format  debug_request_file": '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$request_filename"'
+nginx_http_params:
+  sendfile:          "on"
+  tcp_nopush:        "on"
+  tcp_nodelay:       "on"
+  keepalive_timeout: "65"
+  server_tokens:     "off"
+  server_names_hash_bucket_size: "64"
+  include:      "/etc/nginx/mime.types"
+  default_type: "application/octet-stream"
+  access_log:   "/var/log/nginx/access.log gzip"
+  error_log:    "/var/log/nginx/error.log"
+  gzip:              "off"
+  gzip_disable:      "\"msie6\""
+  gzip_vary:         "on"
+  gzip_proxied:      "any"
+  gzip_comp_level:   "2"
+  gzip_buffers:      "4 8k"
+  gzip_http_version: "1.0"
+  gzip_types: "text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/x-http-php"
+  proxy_cache_path: "/var/cache/nginx levels=1:2 keys_zone=czone:32m max_size=256m inactive=120m"
+#  proxy_temp_path:  "/var/tmp/nginx" # directive is duplicate
+  proxy_cache_key:  "\"$scheme://$host$request_uri\""
+  "proxy_set_header Host":               "$host"
+  "proxy_set_header X-Real-IP":          "$remote_addr"
+  "proxy_set_header Remote-Addr":        "$remote_addr"
+  "proxy_set_header X-Forwarded-Host":   "$host"
+  "proxy_set_header X-Forwarded-Server": "$host"
+  "proxy_set_header X-Forwarded-For":    "$proxy_add_x_forwarded_for"
+#  proxy_connect_timeout: "30" # directive is duplicate
+  proxy_send_timeout:    "30"
+  proxy_read_timeout:    "60"
+#  proxy_buffers:         "32 16k" # directive is duplicate
+  proxy_headers_hash_max_size:    "1024"
+  proxy_headers_hash_bucket_size: "128"
+
+# roles/nginx のうち、site.conf の設定は、host_vars に記載する（ホストごとに違うから）
+
+
+# roles/memcached 用設定
+memcached_conf:
+  - filename:  memcached
+    port:      11211
+    user:      memcached
+    maxconn:   1024
+    cachesize: 64
+    options:   ""
+  - filename:  memcached-11212
+    port:      11212
+  - filename:  memcached-11213
+    port:      11213
+  - filename:  memcached-11214
+    port:      11214
+  - filename:  memcached-11215
+    port:      11215
+  - filename:  memcached-11216
+    port:      11216
+  - filename:  memcached-11217
+    port:      11217
+  - filename:  memcached-11218
+    port:      11218
+  - filename:  memcached-11219
+    port:      11219
+  - filename:  memcached-11220
+    port:      11220
+
+# roles/redis 用設定
+redis_conf:
+  - filename: redis
+    logfile:  "/var/log/redis/redis.log"
+    port:     6379
+  - filename: redis-6380
+    logfile:  "/var/log/redis/redis-6380.log"
+    port:     6380
+  - filename: redis-6381
+    logfile:  "/var/log/redis/redis-6381.log"
+    port:     6381
+  - filename: redis-6382
+    logfile:  "/var/log/redis/redis-6382.log"
+    port:     6382
+  - filename: redis-6383
+    logfile:  "/var/log/redis/redis-6383.log"
+    port:     6383
+  - filename: redis-6384
+    logfile:  "/var/log/redis/redis-6384.log"
+    port:     6384
+  - filename: redis-6385
+    logfile:  "/var/log/redis/redis-6385.log"
+    port:     6385
+  - filename: redis-6386
+    logfile:  "/var/log/redis/redis-6386.log"
+    port:     6386
+  - filename: redis-6387
+    logfile:  "/var/log/redis/redis-6387.log"
+    port:     6387
+  - filename: redis-6388
+    logfile:  "/var/log/redis/redis-6388.log"
+    port:     6388
+

@@ -1,0 +1,228 @@
+# {{ ansible_managed }}
+####
+## Output descriptions:
+##
+
+# Treasure Data (http://www.treasure-data.com/) provides cloud based data
+# analytics platform, which easily stores and processes data from td-agent.
+# FREE plan is also provided.
+# @see http://docs.fluentd.org/articles/http-to-td
+
+## match tag=debug.** and dump to console
+<match debug.**>
+  type stdout
+</match>
+
+####
+## Source descriptions:
+##
+
+## live debugging agent
+<source>
+  type debug_agent
+  bind 127.0.0.1
+  port 24230
+</source>
+
+####
+## Input descriptions:
+## Web Apache Log
+##
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/log/httpd/x-arthur.gree-pf.net/x-arthur.gree-pf.net-access_log
+  tag web.apache.access.${hostname}
+  pos_file /var/tmp/fluent_pos/var/log/httpd/x-arthur.gree-pf.net/x-arthur.gree-pf.net-access_log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/log/httpd/x-arthur.gree-pf.net/x-arthur.gree-pf.net-error_log
+  tag web.apache.error.${hostname}
+  pos_file /var/tmp/fluent_pos/var/log/httpd/x-arthur.gree-pf.net/x-arthur.gree-pf.net-error_log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+
+####
+## Input descriptions:
+## Web Nginx Log
+##
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/log/nginx/x-arthur.gree-pf.net/x-arthur.gree-pf.net-access.log
+  tag web.nginx.access.${hostname}
+  pos_file /var/tmp/fluent_pos/var/log/nginx/x-arthur.gree-pf.net/x-arthur.gree-pf.net-access.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/log/nginx/x-arthur.gree-pf.net/x-arthur.gree-pf.net-error.log
+  tag web.nginx.error.${hostname}
+  pos_file /var/tmp/fluent_pos/var/log/nginx/x-arthur.gree-pf.net/x-arthur.gree-pf.net-error.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+####
+## Input descriptions:
+## Web Apache Log(FP)
+##
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/log/httpd/fp.x-arthur.com/fp.x-arthur.com-access_log
+  tag web.fp.apache.access.${hostname}
+  pos_file /var/tmp/fluent_pos/var/log/httpd/fp.x-arthur.com/fp.x-arthur.com-access_log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/log/httpd/fp.x-arthur.com/fp.x-arthur.com-error_log
+  tag web.fp.apache.error.${hostname}
+  pos_file /var/tmp/fluent_pos/var/log/httpd/fp.x-arthur.com/fp.x-arthur.com-error_log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+
+####
+## Input descriptions:
+## Web Nginx Log(FP)
+##
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/log/nginx/fp.x-arthur.com/fp.x-arthur.com-access.log
+  tag web.fp.nginx.access.${hostname}
+  pos_file /var/tmp/fluent_pos/var/log/nginx/fp.x-arthur.com/fp.x-arthur.com-access.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/log/nginx/fp.x-arthur.com/fp.x-arthur.com-error.log
+  tag web.fp.nginx.error.${hostname}
+  pos_file /var/tmp/fluent_pos/var/log/nginx/fp.x-arthur.com/fp.x-arthur.com-error.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+####
+## Input descriptions:
+## Web Application Log
+##
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/www/vhosts/x-arthur.gree-pf.net/omega/shared/logs/omega-production-kpi.log
+  tag web.app.kpi.${hostname}
+  pos_file /var/tmp/fluent_pos/var/www/vhosts/x-arthur.gree-pf.net/shared/logs/omega-production-kpi.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/www/vhosts/x-arthur.gree-pf.net/omega/shared/logs/omega-production-sql.log
+  tag web.app.sql.${hostname}
+  pos_file /var/tmp/fluent_pos/var/www/vhosts/x-arthur.gree-pf.net/shared/logs/omega-production-sql.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/www/vhosts/x-arthur.gree-pf.net/omega/shared/logs/omega-production-stat.log
+  tag web.app.stat.${hostname}
+  pos_file /var/tmp/fluent_pos/var/www/vhosts/x-arthur.gree-pf.net/shared/logs/omega-production-stat.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/www/vhosts/x-arthur.gree-pf.net/omega/shared/logs/omega-production.log
+  tag web.app.log.${hostname}
+  pos_file /var/tmp/fluent_pos/var/www/vhosts/x-arthur.gree-pf.net/shared/logs/omega-production.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/www/vhosts/x-arthur.gree-pf.net/omega/shared/logs/omega-production-arena.log
+  tag web.app.arena.${hostname}
+  pos_file /var/tmp/fluent_pos/var/www/vhosts/x-arthur.gree-pf.net/shared/logs/omega-production-arena.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+<match web.**>
+  type forward
+  send_timeout 60s
+  recover_wait 10s
+  heartbeat_interval 1s
+  phi_threshold 8
+  hard_timeout 60s
+  flush_interval 1s
+  buffer_chunk_limit 10m
+  buffer_queue_limit 512
+  buffer_type file
+  buffer_path /var/tmp/fluent_buf
+  <server>
+    name omg-log01
+    host 10.35.87.159
+    port 24224
+  </server>
+</match>
+

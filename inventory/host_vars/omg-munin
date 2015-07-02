@@ -1,0 +1,4 @@
+# host 毎設定 omg-munin
+
+# playbook/ping 用
+ping_hv: omg-munin

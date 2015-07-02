@@ -1,0 +1,38 @@
+- name: "* roles/postfix | tags postfix"
+  debug:
+  tags: [postfix]
+
+- name: install postfix
+  # yum: name=mailx state=present
+  debug: "sorry. its dummmmmmy"
+  tags: [postfix]
+
+- name: easy backup /etc/postfix/main.cf
+  lineinfile:
+    dest:   /etc/postfix/main.cf
+    regexp: "{{ item.r }}"
+    line:   "{{ item.l }}"
+    state:  "{{ item.s }}"
+    backrefs: yes
+  with_items:
+    # 元々ある relayhost はバックアップする
+    - {r: '^relayhost = (.*)$' ,  l: '#relayhost = \1 # backup', s: present }
+    - {r: '^myhostname = (.*)$' ,  l: '#myhostname = \1 # backup', s: present }
+  when: relayhost is defined and relayhost != 'none'
+  notify: update_postfix
+  tags: [postfix]
+
+- name: set up /etc/postfix/main.cf
+  lineinfile:
+    dest:   /etc/postfix/main.cf
+    regexp: "{{ item.r }}"
+    line:   "{{ item.l }}"
+    state:  "{{ item.s }}"
+    insertafter: "{{ item.i }}"
+  with_items:
+    - {r: '^relayhost = (.*)$' ,  l: 'relayhost = {{ relayhost }}', s: present, i: '^#relayhost ' }
+    - {r: '^myhostname = (.*)$' , l: 'myhostname = {{ ansible_fqdn }}', s: present, i: '^#myhostname ' }
+  notify: update_postfix
+  when: relayhost is defined and relayhost != 'none'
+  tags: [postfix]
+

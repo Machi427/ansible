@@ -1,0 +1,17 @@
+- name: "* roles/phpmemcachedadmin"
+  debug:
+  tags: [phpmemcachedadmin]
+
+- name: phpmemcachedadmin | install
+  yum: name=phpMemcachedAdmin
+       enablerepo=remi
+       state=present
+  tags: [phpmemcachedadmin]
+
+- name: phpmemcachedadmin | link to nginx
+  file: src=/usr/share/phpMemcachedAdmin
+        dest=/usr/share/nginx/mem
+        owner=root
+        group=root
+        state=link
+  tags: [phpmemcachedadmin]

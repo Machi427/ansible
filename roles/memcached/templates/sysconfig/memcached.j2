@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+PORT={{ item.port | default('11211') }}
+USER={{ item.user | default('memcached') }}
+MAXCONN={{ item.maxconn | default('1024') }}
+CACHESIZE={{ item.cachesize | default('64') }}
+OPTIONS="{{ item.options | default('') }}"
+

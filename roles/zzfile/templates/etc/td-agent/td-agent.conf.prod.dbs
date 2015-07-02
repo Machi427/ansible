@@ -1,0 +1,76 @@
+# {{ ansible_managed }}
+####
+## Output descriptions:
+##
+
+# Treasure Data (http://www.treasure-data.com/) provides cloud based data
+# analytics platform, which easily stores and processes data from td-agent.
+# FREE plan is also provided.
+# @see http://docs.fluentd.org/articles/http-to-td
+
+## match tag=debug.** and dump to console
+<match debug.**>
+  type stdout
+</match>
+
+####
+## Source descriptions:
+##
+
+## live debugging agent
+<source>
+  type debug_agent
+  bind 127.0.0.1
+  port 24230
+</source>
+
+####
+## Input descriptions:
+## DB MySQL Log
+##
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/log/mysql/mysql-slow.log
+  tag db.mysql_slave.slow_log.${hostname}
+  pos_file /var/tmp/fluent_pos/var/log/mysql/mysql-slow.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+<source>
+  type tail_ex
+  format /^(?<message>.*)/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  path /var/log/mysql/mysqld.log
+  tag db.mysql_slave.log.${hostname}
+  pos_file /var/tmp/fluent_pos/var/log/mysql/mysqld.log.pos
+  rotate_wait 30
+  refresh_interval 5
+  read_all true
+</source>
+
+
+
+
+<match db.**>
+  type forward
+  send_timeout 60s
+  recover_wait 10s
+  heartbeat_interval 1s
+  phi_threshold 8
+  hard_timeout 60s
+  flush_interval 1s
+  buffer_chunk_limit 10m
+  buffer_queue_limit 512
+  buffer_type file
+  buffer_path /var/tmp/fluent_buf
+  <server>
+    name omg-log01
+    host 10.35.87.159
+    port 24224
+  </server>
+</match>

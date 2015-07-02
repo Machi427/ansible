@@ -1,0 +1,8 @@
+# 開発用の vagrant で role をテストするプレイブック
+#
+# ansible-playbook test.yml
+
+- hosts: all
+  sudo: yes
+  roles:
+    - test

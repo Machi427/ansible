@@ -1,0 +1,67 @@
+# host 毎設定 omg-sandbox02
+
+# playbook/ping 用
+ping_hv: omg-sandbox02
+
+
+# roles/nginx 用
+nginx_sites:
+ - server:
+    file_name:   admin.sb05.omg.griphone.co.jp.conf
+    server_name: admin.sb05.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/admin.sb05.omg.griphone.co.jp/admin.sb05.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/admin.sb05.omg.griphone.co.jp/admin.sb05.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   sb05.omg.griphone.co.jp.conf
+    server_name: sb05.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/sb05.omg.griphone.co.jp/sb05.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/sb05.omg.griphone.co.jp/sb05.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   sb06.omg.griphone.co.jp.conf
+    server_name: sb06.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/sb06.omg.griphone.co.jp/sb06.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/sb06.omg.griphone.co.jp/sb06.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   sb07.omg.griphone.co.jp.conf
+    server_name: sb07.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/sb07.omg.griphone.co.jp/sb07.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/sb07.omg.griphone.co.jp/sb07.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   sb08.omg.griphone.co.jp.conf
+    server_name: sb08.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/sb08.omg.griphone.co.jp/sb08.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/sb08.omg.griphone.co.jp/sb08.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+
+# roles/httpd 用
+httpd_sites:
+ - server:
+    sb_name:     admin.sb05
+    file_name:   admin.sb05.omg.griphone.co.jp.conf
+    server_name: admin.sb05.omg.griphone.co.jp
+ - server:
+    sb_name:     sb05
+    file_name:   sb05.omg.griphone.co.jp.conf
+    server_name: sb05.omg.griphone.co.jp
+ - server:
+    sb_name:     sb06
+    file_name:   sb06.omg.griphone.co.jp.conf
+    server_name: sb06.omg.griphone.co.jp
+ - server:
+    sb_name:     sb07
+    file_name:   sb07.omg.griphone.co.jp.conf
+    server_name: sb07.omg.griphone.co.jp
+ - server:
+    sb_name:     sb08
+    file_name:   sb08.omg.griphone.co.jp.conf
+    server_name: sb08.omg.griphone.co.jp
+

@@ -1,0 +1,6 @@
+- name: "* roles/samples"
+  debug:
+  tags: [samples]
+
+- include: templates.yml
+  tags: [templates]

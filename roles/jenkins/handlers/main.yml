@@ -1,0 +1,6 @@
+---
+
+- name: restart jenkins
+  sudo: yes
+  command: service jenkins restart
+  ignore_errors: yes

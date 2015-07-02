@@ -1,0 +1,24 @@
+# {{ ansible_managed }}
+
+user {{ nginx_user | default('nginx') }};
+
+worker_processes {{ ansible_processor_count | default('auto') }};
+pid {{ nginx_pid_file | default('/var/run/nginx.pid') }};
+worker_rlimit_nofile {{ nginx_rlimit_nofile | default('1024') }};
+
+events {
+    worker_connections  {{ nginx_max_clients | default('1024') }};
+}
+
+http {
+
+{% for k,v in nginx_http_pre_params|dictsort %}
+    {{ k }}  '{{ v }}';
+{% endfor %}
+
+{% for k,v in nginx_http_params|dictsort %}
+    {{ k }}  {{ v }};
+{% endfor %}
+
+    include /etc/nginx/conf.d/*.conf;
+}

@@ -1,0 +1,40 @@
+---
+
+# munin node setup
+
+- name: "* roles/munin node"
+  debug:
+  tags: [munin, munin-node]
+
+- name: install munin-node
+  yum:
+    name:       munin-node
+    state:      present
+    enablerepo: epel
+  tags: [munin, munin-node]
+
+- name: munin-node.conf | edit hostname
+  lineinfile:
+    dest:   /etc/munin/munin-node.conf
+    regexp: "^host_name"
+    line:   'host_name {{ inventory_hostname }}'
+  tags: [munin, munin-node]
+
+- name: munin-node.conf | edit allow | TODO 複数回起動で複数書き込みしてしまう
+  lineinfile:
+    dest:   /etc/munin/munin-node.conf
+    regexp: '{{ item }}'
+    line:   '{{ item }}'
+    insertbefore: '^allow '
+  with_items: munin_conf_allow
+  when:       munin_conf_allow is defined
+  tags: [munin, munin-node]
+
+- name: started munin-node service
+  service:
+    name: munin-node
+    state: started
+    enabled: yes
+  ignore_errors: true
+  tags: [munin, munin-node]
+

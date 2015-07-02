@@ -1,0 +1,283 @@
+#!/bin/bash
+#
+#
+# redis-simple
+#
+# Description:  Manages redis as Linux-HA resource
+#
+# Authors:  Alan Robertson,
+#       Jakub Janczak,
+#       Andrew Beekhof,
+#       Sebastian Reitenbach,
+#       Narayan Newton,
+#       Marian Marinov,
+#       Florian Haas:                 MySQL script
+#       Martin Walter:                rewrite as redis
+#       Jose Junior:                  tweaks to the redis version
+#
+# Support:  linux-ha@lists.linux-ha.org
+# License:  GNU General Public License (GPL)
+#
+# (c) 2002-2005 International Business Machines, Inc.
+#     2005-2010 Linux-HA contributors
+#
+# An example usage in /etc/ha.d/haresources:
+#       node1  10.0.0.170 redis
+#
+# See usage() function below for more details...
+#
+# OCF instance parameters:
+#   OCF_RESKEY_binary
+#   OCF_RESKEY_client_binary
+#   OCF_RESKEY_port
+#######################################################################
+# Initialization:
+
+: ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/lib/heartbeat}
+. ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
+
+#######################################################################
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+
+# Fill in some defaults if no values are specified
+OCF_RESKEY_binary_default=redis-server
+OCF_RESKEY_client_binary_default=redis-cli
+OCF_RESKEY_port_default=6379
+
+: ${OCF_RESKEY_binary=${OCF_RESKEY_binary_default}}
+REDIS_SERVER_NAME=${OCF_RESKEY_binary}
+
+: ${OCF_RESKEY_client_binary=${OCF_RESKEY_client_binary_default}}
+: ${OCF_RESKEY_port=${OCF_RESKEY_port_default}}
+
+#######################################################################
+
+usage() {
+  cat <<UEND
+    usage: $0 (start|stop|validate-all|meta-data|monitor|promote|demote|notify)
+
+    $0 manages redis as an HA resource.
+
+    The 'start' operation starts redis.
+    The 'stop' operation stops redis.
+    The 'status' operation reports whether redis is running
+    The 'monitor' operation reports whether redis seems to be working
+    The 'promote' operation makes this redis instance run as master
+    The 'demote' operation makes this redis instance run as slave
+    The 'validate-all' operation reports whether the parameters are valid
+
+UEND
+}
+
+meta_data() {
+    cat <<END
+<?xml version="1.0"?>
+<!DOCTYPE resource-agent SYSTEM "ra-api-1.dtd">
+<resource-agent name="redis">
+<version>1.0</version>
+
+<longdesc lang="en">
+Resource script for redis. 
+It manages a redis instance as an HA resource.
+</longdesc>
+<shortdesc lang="en">Manages a redis instance</shortdesc>
+
+<parameters>
+
+<parameter name="binary" unique="0" required="0">
+<longdesc lang="en">
+Name of the redis server binary. Use an absolute path if the binary is not resolvable via \$PATH
+</longdesc>
+<shortdesc lang="en">redis binary</shortdesc>
+<content type="string" default="${OCF_RESKEY_binary_default}" />
+</parameter>
+
+<parameter name="client_binary" unique="0" required="0">
+<longdesc lang="en">
+Name of the redis client binary. Use an absolute path if the binary is not resolvable via \$PATH
+</longdesc>
+<shortdesc lang="en">redis client binary</shortdesc>
+<content type="string" default="${OCF_RESKEY_client_binary_default}" />
+</parameter>
+
+<parameter name="port" unique="0" required="0">
+<longdesc lang="en">
+Port where the redis server is listening
+</longdesc>
+<shortdesc lang="en">redis port</shortdesc>
+<content type="string" default="${OCF_RESKEY_port_default}" />
+</parameter>
+
+</parameters>
+
+<actions>
+<action name="start" timeout="120" />
+<action name="stop" timeout="120" />
+<action name="status" timeout="60" />
+<action name="monitor" depth="0" timeout="30" interval="20" />
+<action name="validate-all" timeout="5" />
+<action name="meta-data" timeout="5" />
+</actions>
+</resource-agent>
+END
+}
+
+#######################################################################
+# Convenience variables
+
+CRM_MASTER="${HA_SBIN_DIR}/crm_master -l reboot "
+
+#######################################################################
+
+# Convenience functions
+
+read_ms_status() {
+    local tmp
+    local has_slave_role
+    local master_host
+    local master_host_value
+
+    tmp=$(mktemp -p $HA_RSCTMP)
+    $OCF_RESKEY_client_binary -p ${OCF_RESKEY_port} info >$tmp
+    if [ $? -ne 0 ]; then
+        ocf_log info "Could not determine master/slave status";
+        rm -f $tmp
+        return $OCF_ERR_GENERIC;
+    fi
+
+    grep -e "role:slave" $tmp >/dev/null 2>&1
+    has_slave_role=$?
+
+    master_host_value=""
+    master_host=$(grep -e "master_host:" $tmp)
+    if [ $? -eq 0 ]; then
+        master_host_value=$(echo $master_host | cut -d':' -f2 | tr -d " ")
+    fi
+
+    rm -f $tmp
+
+    if [ $has_slave_role -eq 0 -a "x$master_host_value" != "x"  ]; then
+        ocf_log info "$REDIS_SERVER_NAME is running (as slave)";
+        return $OCF_SUCCESS;
+    else
+        ocf_log info "$REDIS_SERVER_NAME is running (as master)";
+        return $OCF_RUNNING_MASTER;
+    fi
+}
+
+set_master() {
+    local master_host=$1
+
+    ocf_log info "Set $REDIS_SERVER_NAME to be a slave of $master_host";
+    ocf_run $OCF_RESKEY_client_binary -p ${OCF_RESKEY_port} slaveof $master_host $OCF_RESKEY_port
+    return $?
+}
+
+unset_slave() {
+    local rc
+
+    ocf_log info "Set $REDIS_SERVER_NAME to become a slave of no one";
+    ocf_run $OCF_RESKEY_client_binary -p ${OCF_RESKEY_port} slaveof no one
+    return $?
+}
+
+#######################################################################
+
+# Functions invoked by resource manager actions
+
+redis_validate() {
+    check_binary $OCF_RESKEY_binary
+    check_binary $OCF_RESKEY_client_binary
+
+    true
+}
+
+redis_status() {
+    local rc
+
+    read_ms_status
+    rc=$?
+
+    if [ $rc -eq $OCF_SUCCESS -o $rc -eq $OCF_RUNNING_MASTER ]; then
+        ocf_log info "Redis is running"
+        return $OCF_SUCCESS
+    else
+        return $OCF_ERR_GENERIC
+    fi
+}
+
+redis_start() {
+
+    local master_host
+    local rc
+
+    redis_status
+    rc=$?
+
+    if [ $rc -eq $OCF_RUNNING_MASTER ]; then
+        ocf_log info "$REDIS_SERVER_NAME is already master."
+        return $OCF_SUCCESS
+    elif [ $rc -eq $OCF_SUCCESS ]; then
+        ocf_log info "$REDIS_SERVER_NAME is slave. change master"
+        unset_slave
+        ocf_log info "$REDIS_SERVER_NAME to be master."
+    fi
+
+    ocf_log info "$REDIS_SERVER_NAME started"
+    return $OCF_SUCCESS
+}
+
+redis_stop() {
+    local rc
+
+    read_ms_status
+    rc=$?
+
+    if [ $rc -eq $OCF_RUNNING_MASTER ]; then
+        ocf_log info "$REDIS_SERVER_NAME is master. change slave";
+
+        self_host=`uname -n`
+        # 対向ノードを取得
+        master_host=`/usr/sbin/crm node status | grep normal | sed -e 's/.*uname="//g' | sed -e 's/\".*//g' | grep -v ${self_host}`
+        if [ "${master_host}x" != "x" ]; then
+            set_master $master_host
+            ocf_log info "$REDIS_SERVER_NAME is slaved ($master_host)";
+        fi
+
+        return $OCF_SUCCESS
+    fi
+
+    ocf_log info "$REDIS_SERVER_NAME is stopped(slaved)."
+    return $OCF_SUCCESS
+}
+
+#######################################################################
+
+# Make sure meta-data and usage always succeed
+case $__OCF_ACTION in
+meta-data) meta_data
+                exit $OCF_SUCCESS
+                ;;
+usage|help) usage
+                exit $OCF_SUCCESS
+                ;;
+esac
+
+# Anything other than meta-data and usage must pass validation
+redis_validate || exit $?
+
+# Translate each action into the appropriate function call
+case $__OCF_ACTION in
+start)          redis_start;;
+stop)           redis_stop;;
+status|monitor) redis_status;;
+validate-all)   ;;
+*)             usage
+                exit $OCF_ERR_UNIMPLEMENTED
+                ;;
+esac
+rc=$?
+
+# The resource agent may optionally log a debug message
+ocf_log debug "${OCF_RESOURCE_INSTANCE} $__OCF_ACTION returned $rc"
+exit $rc

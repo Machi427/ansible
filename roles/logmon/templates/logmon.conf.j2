@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+# Monitor for messages
+:/var/log/messages
+:/var/log/httpd/error_log
+(\[notice\] child pid \d+ exit signal Segmentation fault)
+echo '<%%%%>' | mail -s "[$(hostname)] Catch Segmentation fault" omg-infra@griphone.co.jp
+/etc/init.d/httpd graceful

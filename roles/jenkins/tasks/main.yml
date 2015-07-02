@@ -1,0 +1,53 @@
+- name: "* roles/jenkins"
+  debug:
+  tags: [jenkins]
+
+- name: java-1.7.0-openjdk install
+  yum: name=java-1.7.0-openjdk state=present
+  tags: [jenkins]
+
+#- name: yum.repo check
+#  stat: path=/etc/yum.repos.d/jenkins.repo
+#  register: is_jenkins
+#  tags: [jenkins]
+
+- name: yum.repo install
+  get_url:
+    # LTS repo: http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+    url: http://pkg.jenkins-ci.org/redhat/jenkins.repo
+    dest: /etc/yum.repos.d/jenkins.repo
+#  when: is_jenkins.stat.md5 is not defined
+  tags: [jenkins]
+
+- name: yum.repo GPG key install
+  rpm_key:
+    state: present
+    # LTS key: http://pkg.jenkins-ci.org/redhat-stable/jenkins-ci.org.key
+    key: http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
+#  when: is_jenkins.stat.md5 is not defined
+  tags: [jenkins]
+
+- name: install
+  yum: name=jenkins enablerepo=jenkins state=latest
+  notify: restart jenkins
+  tags: [jenkins]
+
+- name: replace nginx default conf
+  template:
+    src:  nginx/jenkins.j2
+    dest: /etc/nginx/conf.d/default.conf
+  tags: [jenkins]
+
+- name: /etc/sysconfig/jenkins
+  lineinfile: dest=/etc/sysconfig/jenkins regexp={{ item.r }} line={{ item.l }}
+  with_items:
+    - {r: "^JENKINS_PORT" ,                l: JENKINS_PORT=\"8080\" }
+    - {r: "^JENKINS_LISTEN_ADDRESS=" ,     l: JENKINS_LISTEN_ADDRESS=\"127.0.0.1\" }
+    - {r: "^JENKINS_AJP_LISTEN_ADDRESS=" , l: JENKINS_AJP_LISTEN_ADDRESS=\"127.0.0.1\"  }
+    - {r: "^JENKINS_ARGS=" ,               l: JENKINS_ARGS=\"--sessionTimeout=1440\" }
+  notify: restart jenkins
+  tags: [jenkins]
+
+- name: jenkins user has sh
+  user: name=jenkins shell=/bin/bash
+  tags: [jenkins]

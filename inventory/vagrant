@@ -1,0 +1,31 @@
+[ifg_vagrant]
+
+[ifg_vagrant:children]
+web
+hhvm
+db
+ctl
+zabbix
+munin
+jenkins
+
+[web]
+omg-web ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+
+[hhvm]
+omg-hhvm ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+
+[db]
+omg-db ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+
+[ctl]
+omg-ctl ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+
+[zabbix]
+omg-zabbix ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+
+[munin]
+omg-munin ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+
+[jenkins]
+omg-jenkins ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant

@@ -1,0 +1,32 @@
+- name: "* roles/zabbix"
+  debug:
+  tags: [zabbix]
+
+- name: zabbix | install packages | aganet
+  yum:
+    name:       "{{ item.name }}"
+    state:      present
+    enablerepo: "{{ item.enablerepo | default('') }}"
+  with_items:   zabbix_install_packages | default( zabbix_default_package )
+  tags: ['zabbix']
+
+- name: zabbix | started zabbix-agent service
+  service:
+    name: zabbix-agent
+    state: started
+    enabled: yes
+  ignore_errors: true
+  tags: ['zabbix']
+
+- name: zabbix | zabbix_agentd.conf Server IP Address
+  lineinfile: dest=/etc/zabbix/zabbix_agentd.conf regexp="^Server=" line="Server={{ zabbix_agentd_conf_server }}"
+  tags: ['zabbix']
+
+- name: zabbix | zabbix agent always restart
+  service: name=zabbix-agent state=restarted
+  tags: ['zabbix']
+
+- name: zabbix | server setup
+  include: server.yml
+  # see playbook/server_zabbix.yml 
+  when: (is_zabbix_server is defined and is_zabbix_server == 1)

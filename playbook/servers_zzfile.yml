@@ -1,0 +1,7 @@
+# 最終的にサーバに送りつける設定を整理する
+# 変数は group_vars にできるだけ格納すること。
+# 個別のために hosts_vars を使った場合はここにメモを残すこと。
+- hosts: all
+  sudo: yes
+  roles:
+    - zzfile

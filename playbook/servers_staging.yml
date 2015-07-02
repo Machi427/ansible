@@ -1,0 +1,29 @@
+# プロジェクトのstaging環境を作る 
+#
+# ansible-playbook servers_staging.yml
+
+# ifg_staging でのみ有効にしたいんだけど、うまくできなかったので注意して使うこと。
+# 具体的には ansible.cfg で inventory/staging 以外の時にこのplaybookを使用しないこと
+
+- hosts: web
+  sudo: yes
+  roles:
+    - { role: nginx,
+        nginx_staging_server: 1
+      }
+    # server flg は inventory/group_vars , host_vars を参照すること
+    - { role: httpd,
+        httpd_staging_server: 1
+      }
+    - redis
+    - memcached
+    - fluentd
+    - phpmyadmin
+    - phpredisadmin
+    - phpmemcachedadmin
+
+- hosts: db
+  sudo: yes
+  roles:
+    - mysql
+    - fluentd

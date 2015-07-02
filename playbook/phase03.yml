@@ -1,0 +1,16 @@
+# システム監視及びセキュリティ用
+#
+
+- hosts: all
+  sudo: yes
+  roles:
+    - sysstat
+    # ACには自前のNTPがあるので書き換えるの一時停止
+    # - ntp
+    # - sshd
+    - postfix
+    # - root
+    # - rsyslog
+    # - sshd
+    - logwatch
+    - etckeeper

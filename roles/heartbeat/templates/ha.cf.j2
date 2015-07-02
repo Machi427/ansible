@@ -1,0 +1,15 @@
+crm         on
+debug 0
+debugfile   /var/log/ha-debug
+logfile     /var/log/ha-log
+logfacility none
+keepalive   2
+deadtime    10
+initdead    30
+udpport     694
+ucast       eth1 192.168.33.21
+ucast       eth1 192.168.33.31
+node        hb01
+node        hb02
+uuidfrom    nodename
+respawn root /usr/lib64/heartbeat/ifcheckd

@@ -1,0 +1,13 @@
+---
+
+- name: "* roles/capistrano"
+  debug:
+  tags: [capistrano]
+
+- name: gem install capistrano
+  gem:  name=capistrano state=present executable=/usr/local/rbenv/shims/gem user_install=False
+  tags: [capistrano]
+
+- name: gem install capistrano-rsync
+  gem:  name=capistrano-rsync state=present executable=/usr/local/rbenv/shims/gem user_install=False
+  tags: [capistrano]

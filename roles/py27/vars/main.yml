@@ -1,0 +1,14 @@
+---
+
+# roles/py27/vars/main.yml
+
+py27_default_package:
+  - name: zlib-devel
+  - name: bzip2
+  - name: bzip2-devel 
+  - name: openssl
+  - name: openssl-devel
+  - name: ncurses-devel
+  - name: sqlite-devel
+  - name: readline-devel
+  - name: tk-devel

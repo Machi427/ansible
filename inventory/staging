@@ -1,0 +1,14 @@
+[ifg_staging]
+
+[ifg_staging:children]
+web
+db
+
+[web]
+omg-web-stg01 ansible_connection=local ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+omg-web-stg02 ansible_connection=local ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+
+[db]
+omg-db-stg01 ansible_connection=local ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+omg-db-stg02 ansible_connection=local ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+

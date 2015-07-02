@@ -1,0 +1,57 @@
+
+
+primitive res_Mailto ocf:heartbeat:MailTo \
+        params email="unyou-all@isao.net" subject="(GRIPHONE)" \
+        op start interval="0" timeout="60s" on_fail="restart" \
+        op monitor interval="10s" timeout="60s" on_fail="restart" \
+        op stop interval="0" timeout="60s" on_fail="block"
+
+primitive res_VIP ocf:heartbeat:IPaddr2 \
+        params ip="10.125.24.194" nic="eth1" cidr_netmask="24" \
+        op start interval="0" timeout="60s" on_fail="restart" \
+        op stop interval="0" timeout="60s" on_fail="block" \
+        op monitor interval="30s" timeout="60s" on_fail="restart"
+
+primitive res_VIPcheck ocf:heartbeat:VIPcheck \
+        params target_ip="10.125.24.194" count="1" wait="10" \
+        op start interval="0" timeout="90s" on_fail="block" \
+        op stop interval="0" timeout="90s" on_fail="block"
+
+primitive res_redis01 ocf:heartbeat:redis-simple \
+        params port="6379" \
+        op start interval="0" timeout="120s" on_fail="restart" \
+        op monitor interval="30s" timeout="60s" \
+        op stop interval="0" timeout="120s"
+
+primitive res_redis02 ocf:heartbeat:redis-simple \
+        params port="6380" \
+        op start interval="0" timeout="120s" on_fail="restart" \
+        op monitor interval="30s" timeout="60s" \
+        op stop interval="0" timeout="120s"
+
+primitive res_redis03 ocf:heartbeat:redis-simple \
+        params port="6381" \
+        op start interval="0" timeout="120s" on_fail="restart" \
+        op monitor interval="30s" timeout="60s" \
+        op stop interval="0" timeout="120s"
+
+group rg_CA res_Mailto res_VIPcheck res_VIP res_redis01 res_redis02 res_redis03
+
+location group_ca-location rg_CA \
+        rule $id="group_ca-location-rule" 200: #uname eq king-ca-m02 \
+        rule $id="group_ca-location-rule-0" 100: #uname eq king-ca-s02 \
+        rule $id="group_ca-location-rule-1" -inf: defined default_ping_set and default_ping_set lt 100
+
+property $id="cib-bootstrap-options" \
+        dc-version="1.0.12-066152e" \
+        cluster-infrastructure="Heartbeat" \
+        expected-quorum-votes="2" \
+        no-quorum-policy="ignore" \
+        stonith-enabled="false" \
+        startup-fencing="false" \
+        dc-deadtime="20s" \
+        last-lrm-refresh="1423185992"
+
+rsc_defaults $id="rsc-options" \
+        resource-stickiness="INFINITY" \
+        migration-threshold="1"

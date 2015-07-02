@@ -1,0 +1,11 @@
+# playbook/ping.yml 用のテスト。
+ping_gv_db: group_vars/db
+
+# DB 系サーバの設定ファイル更新用
+group_zzfile_conf:
+  - src:    etc/logrotate.d/mysql
+    dest:  /etc/logrotate.d/mysql
+  - src:    etc/logrotate.d/syslog
+    dest:  /etc/logrotate.d/syslog
+  - src:    etc/td-agent/td-agent.conf.prod.dbm
+    dest:  /etc/td-agent/td-agent.conf

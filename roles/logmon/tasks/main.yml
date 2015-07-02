@@ -1,0 +1,53 @@
+- name: "* roles/logmon | tags logmon"
+  debug: msg="see. http://vogel.at.webry.info/201402/article_2.html"
+  tags: [logmon]
+
+- name: push logmon.tgz
+  copy:
+    src: 00057580_logmon_20100411.tgz
+    dest: /usr/local/src/00057580_logmon_20100411.tgz
+  tags: [logmon]
+
+- name: unarchive
+  unarchive:
+    src: /usr/local/src/00057580_logmon_20100411.tgz
+    dest: /usr/local/src
+    copy: no
+  tags: [logmon]
+
+- name: push patch
+  template:
+    src: logmon.patch
+    dest: /usr/local/src/logmon_20100411/logmon.patch
+  tags: [logmon]
+
+- name: build ( with patch )
+  shell: >
+    {{ item }}
+    chdir=/usr/local/src/logmon_20100411
+    creates=/etc/logmon/logmon.pl
+  with_items:
+    - "patch -p1 < logmon.patch"
+    - "sh setup.sh"
+  tags: [logmon]
+
+- name: overwrite /etc/logmon/logmon.conf
+  template: src="{{ item }}" dest=/etc/logmon/logmon.conf
+  with_first_found:
+    - files:
+        - logmon.conf.{{ inventory_hostname }}.j2
+        - logmon.conf.{{ ansible_hostname }}.j2
+        - logmon.conf.{{ group_names[3] | default('x') }}.j2
+        - logmon.conf.{{ group_names[2] | default('x') }}.j2
+        - logmon.conf.{{ group_names[1] | default('x') }}.j2
+        - logmon.conf.{{ group_names[0] | default('x') }}.j2
+        - logmon.conf.j2
+      paths:
+        - ../templates/
+  tags: [logmon]
+
+- name: start service
+  service: name=logmon state=restarted enabled=yes
+  ignore_errors: yes
+  tags: [logmon]
+

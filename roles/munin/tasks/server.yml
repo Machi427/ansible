@@ -1,0 +1,18 @@
+- name: "* roles/munin with is_munin_server"
+  debug:
+  tags: [munin,munin-server]
+
+- name: install munin-server packages
+  yum:
+    name:       munin
+    state:      present
+    enablerepo: epel
+  when: (is_munin_server is defined and is_munin_server == 1)
+  tags: [munin, munin-server]
+
+- name: todo munin server htpasswd
+  # debug: msg="sudo htpasswd -c /etc/munin/munin-htpasswd omega omega"
+  htpasswd: path=/etc/munin/munin-htpasswd name=omega password=omega mode=0644
+
+- name: todo httpd server start
+  debug: msg="service httpd start"

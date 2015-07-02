@@ -1,0 +1,37 @@
+- name: "* roles/mail.aliases | tags mail.aliases"
+  debug:
+  tags: [mail.aliases]
+
+- name: install mailx 
+  yum: name=mailx state=present
+  tags: [mail.aliases]
+
+- name: easy backup /etc/aliases
+  lineinfile:
+    dest:   /etc/aliases
+    regexp: "{{ item.r }}"
+    line:   "{{ item.l }}"
+    state:  "{{ item.s }}"
+    backrefs: yes
+  with_items:
+    # 元々ある root の宛先はバックアップする
+    - {r: '^root(\s*):(.*)$' ,  l: '#root\1:\2 # backup', s: present }
+  notify: update_aliases
+  when: root_mail_address != 'none'
+  tags: [mail.aliases]
+
+- name: set destination address of root
+  lineinfile:
+    dest:   /etc/aliases
+    regexp: "{{ item.r }}"
+    line:   "{{ item.l }}"
+    state:  "{{ item.s }}"
+  with_items:
+    - {r: '^root(\s*):(.*)$' ,  l: 'root: {{ root_mail_address }}', s: present }
+  when: root_mail_address != 'none'
+  notify: update_aliases
+  tags: [mail.aliases]
+
+- name: set root mail address
+  debug: var=root_mail_address
+  tags: [mail.aliases]

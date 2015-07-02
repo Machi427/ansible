@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+/var/www/vhosts/*/shared/logs/*.log 
+/var/www/vhosts/*/*/shared/logs/*.log {
+    create 0644 omega omega
+    daily
+    nocreate
+    rotate 30
+    missingok
+    notifempty
+    compress
+    delaycompress
+}

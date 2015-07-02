@@ -1,0 +1,57 @@
+- name: "* roles/hhvm"
+  debug:
+  tags: [hhvm]
+
+- name: pre remove confrict packages
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - ImageMagick-last
+  ignore_errors: True
+  tags: [hhvm]
+
+- name: download hop5.in
+  get_url: url=http://www.hop5.in/yum/el6/hop5.repo
+           dest=/etc/yum.repos.d/hop5.repo
+  tags: [hhvm]
+
+- name: enable hop5
+  ini_file: dest=/etc/yum.repos.d/hop5.repo
+            section=hop5
+            option=enabled
+            value=1
+  changed_when: false
+  tags: [hhvm]
+
+- name: install hhvm
+  yum:
+    name: hhvm
+    state: present
+    enablerepo: hop5,epel
+  tags: [hhvm]
+
+- name: disable hop5
+  ini_file: dest=/etc/yum.repos.d/hop5.repo
+            section=hop5
+            option=enabled
+            value=0
+  changed_when: false
+  tags: [hhvm]
+
+- name: /etc/init.d/hhvm
+  template: src=init.d/hhvm dest=/etc/init.d/hhvm
+  tags: [hhvm]
+
+- name: /etc/hhvm/php.ini
+  template: src=php.ini.j2 dest=/etc/hhvm/php.ini
+  tags: [hhvm]
+
+- name: /var/run/hhvm
+  file: path=/var/run/hhvm state=directory owner=root group=apache mode=0755
+  tags: [hhvm]
+
+- name: hhvm | start service
+  service: name=hhvm state=restarted enabled=yes
+  ignore_errors: yes
+  tags: [hhvm]

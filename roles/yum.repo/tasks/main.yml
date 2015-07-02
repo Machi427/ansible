@@ -1,0 +1,119 @@
+---
+
+# repository for yum package.
+#
+
+- name: "* roles/yum.repo | tags yum.repo"
+  debug:
+  tags: [yum.repo]
+
+- name: epel
+  yum: name=http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm state=present
+  tags: [yum.repo]
+
+- name: epel | disabled
+  ini_file: dest=/etc/yum.repos.d/epel.repo
+            section=epel
+            option=enabled
+            value=0
+  tags: [yum.repo]
+
+- name: epel-testing | disabled
+  ini_file: dest=/etc/yum.repos.d/epel-testing.repo
+            section=epel-testing
+            option=enabled
+            value=0
+  tags: [yum.repo]
+
+
+- name: rpmforge
+  yum: name=http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm state=present
+  tags: [yum.repo]
+
+- name: rpmforge | disabled
+  ini_file: dest=/etc/yum.repos.d/rpmforge.repo
+            section=rpmforge
+            option=enabled
+            value=0
+  tags: [yum.repo]
+
+
+- name: remi
+  yum: name=http://rpms.famillecollet.com/enterprise/remi-release-6.rpm state=present
+  tags: [yum.repo]
+
+
+- name: nginx
+  yum: name=http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm state=present
+  tags: [yum.repo]
+
+- name: nginx | disabled
+  ini_file: dest=/etc/yum.repos.d/nginx.repo
+            section=nginx
+            option=enabled
+            value=0
+  tags: [yum.repo]
+
+
+- name: mysql
+  yum: name=https://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm state=present
+  register: is_mysql_repo
+  tags: [yum.repo]
+
+- name: mysql | disabled
+  ini_file: dest=/etc/yum.repos.d/mysql-community.repo
+            section={{ item }}
+            option=enabled
+            value=0
+  with_items: 
+    - mysql-connectors-community
+    - mysql-tools-community
+    - mysql55-community
+    - mysql56-community
+    - mysql57-community-dmr
+  tags: [yum.repo]
+
+- name: mysql | disabled (-source)
+  ini_file: dest=/etc/yum.repos.d/mysql-community-source.repo
+            section={{ item }}
+            option=enabled
+            value=0
+  with_items: 
+    - mysql-connectors-community-source
+    - mysql-tools-community-source
+    - mysql55-community-source
+    - mysql56-community-source
+    - mysql57-community-dmr-source
+  tags: [yum.repo]
+
+
+- name: td-agent
+  copy: src=td-agent.repo dest=/etc/yum.repos.d/td-agent.repo mode=0644 owner=root group=root
+  tags: [yum.repo]
+
+- name: td-agent GPG key install
+  rpm_key:
+    state: present
+    key: http://packages.treasuredata.com/GPG-KEY-td-agent
+  tags: [yum.repo]
+
+
+- name: zabbix
+  yum: name=http://repo.zabbix.com/zabbix/2.4/rhel/6/x86_64/zabbix-release-2.4-1.el6.noarch.rpm state=present
+  tags: [yum.repo, zabbix]
+
+- name: zabbix | disabled
+  ini_file: dest=/etc/yum.repos.d/zabbix.repo
+            section={{ item }}
+            option=enabled
+            value=0
+  with_items: 
+    - zabbix
+    - zabbix-non-supported
+  tags: [yum.repo, zabbix]
+
+
+- name: update ca-certificates
+  yum: name=ca-certificates state=present
+  tags: [yum.repo]
+

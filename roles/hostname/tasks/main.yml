@@ -1,0 +1,33 @@
+# hostname の set/get
+#
+# ex)
+#
+# * get hostname
+# ansible-playbook playbook.yml -l 192.168.33.10 --tags=hostname
+#
+# * set hostname
+# ansible-playbook playbook.yml -l 192.168.33.10 --extra-vars "set_hostname=dev" --tags=hostname
+#
+# * --extra-vars や inventory ファイルで set_hostname を設定すると set が処理される（ when 参照 )
+
+- name: "* roles/hostname | tags hostname | ev set_hostname"
+  debug:
+  tags: [hostname]
+
+- name: set
+  hostname: name={{ set_hostname }}
+  when: set_hostname is defined
+  tags: [hostname]
+
+- name: get
+  command: hostname
+  register: target_hostname
+  changed_when: False
+  tags: [hostname]
+
+- name: show
+  debug: msg=" hostname is [{{ item }}]"
+  with_items: target_hostname.stdout.split()
+  changed_when: False
+  tags: [hostname]
+

@@ -1,0 +1,4 @@
+# host 毎設定 localhost
+
+# playbook/ping 用
+ping_hv: localhost

@@ -1,0 +1,27 @@
+php_conf_path: /etc
+php_extension_conf_path: /etc/php.d
+__php_packages:
+  - php55
+  - php-cli
+  - php-common
+  - php-devel
+  - php-fpm
+  - php-gd
+  - php-imap
+  - php-ldap
+  - php-mbstring
+  - php-pdo
+  - php-pear
+  # pecl memcached は memcached が必要なので memcached role でインストールする
+  # - php-pecl-memcached
+  - php-pecl-redis
+  - php-xml
+  - php-xmlrpc
+  - php-bcmath
+  - php-mcrypt
+  - php-mysqlnd
+  - php-opcache
+  - php-process
+  - php-phpunit-PHPUnit
+php_webserver_daemon: "httpd"
+

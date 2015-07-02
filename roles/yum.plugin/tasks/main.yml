@@ -1,0 +1,19 @@
+---
+
+# install yum plugins.
+
+- name: "* roles/yum.plugin | tags yum.plugin"
+  debug:
+  tags: [yum.plugin]
+
+- name: install
+  yum:
+    name: "{{ item.name }}"
+    state: present
+    enablerepo: "{{ item.repo | default('') }}"
+  with_items:
+    - { name: yum-fastestmirror, repo: ~ }
+    - { name: yum-security,      repo: ~ }
+    - { name: yum-priorities,    repo: ~ }
+  tags: [yum.plugin]
+

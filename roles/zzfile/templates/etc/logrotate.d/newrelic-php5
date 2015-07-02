@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+/var/log/newrelic/php_agent.log {
+    create 0644
+    rotate 7
+    daily
+    missingok
+    notifempty
+    sharedscripts
+    copytruncate
+    compress
+}

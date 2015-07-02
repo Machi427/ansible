@@ -1,0 +1,50 @@
+- name: "* roles/httpd with httpd_prod_server"
+  debug:
+  tags: [httpd, httpd_prod]
+
+- name: overwrite httpd.conf for production
+  template:
+    dest: /etc/httpd/conf/httpd.conf
+    src: httpd.conf.production.j2
+    group: root
+    owner: root
+    mode: 0644
+  notify: httpd graceful
+  tags: ['httpd', httpd_prod, httpd_conf]
+
+- name: mkdir /etc/httpd/conf.d/vhosts.d
+  file: path=/etc/httpd/conf.d/vhosts.d state=directory mode=0755
+  when: (httpd_prod_server is defined and httpd_prod_server == 1)
+  notify: 
+   - httpd graceful
+  tags: [httpd, httpd_prod]
+
+- name: Create the configurations for sites
+  template: src=prod/vhosts.conf.j2 dest=/etc/httpd/conf.d/vhosts.d/{{ item['server']['file_name'] }}
+  with_items: httpd_sites
+  when: (httpd_prod_server is defined and httpd_prod_server == 1)
+  notify:
+   - httpd graceful
+  tags: [httpd, httpd_prod]
+
+- name: mkdir /var/www/vhosts/server_name
+  file: path=/var/www/vhosts/{{ item['server']['server_name'] }} state=directory mode=0755 owner=omega group=omega
+  with_items: httpd_sites
+  when: (httpd_prod_server is defined and httpd_prod_server == 1)
+  notify:
+   - httpd graceful
+  tags: [httpd, httpd_prod]
+
+- name: mkdir /var/log/httpd/server_name
+  file: path=/var/log/httpd/{{ item['server']['server_name'] }} state=directory mode=0755
+  with_items: httpd_sites
+  when: (httpd_prod_server is defined and httpd_prod_server == 1)
+  notify:
+   - httpd graceful
+  tags: [httpd, httpd_prod]
+
+- name: rename ssl.conf
+  command: mv /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/ssl.conf.no
+  when: (httpd_prod_server is defined and httpd_prod_server == 1)
+  ignore_errors: yes
+  tags: [httpd, httpd_prod]

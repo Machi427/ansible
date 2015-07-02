@@ -1,0 +1,28 @@
+---
+
+# stop service
+
+- name: "* roles/service.stop | tags service.stop | ev stop_services"
+  debug:
+  tags: [service.stop]
+
+- name: service stopped. maybe unused...
+  service: name={{ item }} state=stopped enabled=no
+  ignore_errors: yes
+  with_items:
+    - auditd       # 監査システム。
+    - lvm2-monitor # 論理ボリュームマネージャー。
+    - mdmonitor    # ソフトウエアRAID監視デーモン。
+    - netfs        # NFSクライアントデーモン。
+    - nfs          # NFSサーバ。
+    - nfslock      # NFSサーバのファイルロック機構。
+    - iptables     # ファイアーウォール
+  tags: [service.stop]
+
+- name: service stopped. if set vars stop_services.
+  service: name={{ item }} state=stopped enabled=no
+  ignore_errors: yes
+  with_items: stop_services
+  when: stop_services is defined
+  tags: [service.stop]
+

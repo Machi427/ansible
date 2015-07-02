@@ -1,0 +1,30 @@
+---
+
+# i18n (default ja_JP.UTF-8)
+#
+# たぶん CentOS(RHEL) のみ。他のディストだと localdef とかだし。。
+#
+# ansible-playbook playbook.yml -l TARGET --tags=i18n
+# ansible-playbook playbook.yml -l TARGET --tags=i18n --extra-vars "i18n_lang=ja_JP.UTF-8"
+
+- name: "* roles/i18n | tags i18n | ev i18n_lang ( ja_JP.UTF-8 )"
+  debug:
+  tags: [i18n]
+
+- name: install japanese locale
+  yum: name="@Japanese Support" enablerepo=epel state=present
+  register: is_locale
+  tags: [i18n]
+  # sorry... 
+
+- name: skip if not ( install or update ) locale package
+  command: localedef -f UTF-8 -i ja_JP ja_JP.utf8
+  when: is_locale.changed
+  tags: [i18n]
+
+- name: /etc/sysconfig/i18n 
+  lineinfile: dest=/etc/sysconfig/i18n regexp="^LANG" line='LANG="{{ i18n_lang | default('ja_JP.UTF-8') }}"'
+  register: is_sysconfig_i18n
+  changed_when: is_sysconfig_i18n.changed
+  tags: [i18n]
+

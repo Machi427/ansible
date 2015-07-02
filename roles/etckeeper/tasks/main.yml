@@ -1,0 +1,24 @@
+---
+
+- name: "* roles/etckeeper | tags etckeeper"
+  debug:
+  tags: [etckeeper]
+
+- name: install
+  yum: name="etckeeper" state=installed enablerepo="epel"
+  tags: [etckeeper]
+
+- name: etckeeper init
+  shell: >
+    etckeeper init
+    chdir=/etc
+    creates=/etc/.etckeeper
+  register: is_init
+  tags: [etckeeper]
+
+- name: etckeeper init commit
+  shell: >
+    etckeeper vcs commit -m "init"
+    chdir=/etc
+  when: is_init.changed
+  tags: [etckeeper]

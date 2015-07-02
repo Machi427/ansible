@@ -1,0 +1,11 @@
+# playbook/ping.yml 用のテスト。
+ping_gv_ifg_share: group_vars/ifg_share
+
+# グループレベルで同じものはここに書いてもよい
+vars_test01: group_vars/vagrant
+vars_test02: group_vars/vagrant
+vars_test03: group_vars/vagrant
+vars_test04: group_vars/vagrant
+
+# roles/hosts/template/hosts.vagrant.j2 を読み込ませる設定
+etc_hosts_group: vagrant

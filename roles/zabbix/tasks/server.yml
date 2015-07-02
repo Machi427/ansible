@@ -1,0 +1,123 @@
+- name: "* roles/zabbix with is_zabbix_server"
+  debug:
+  tags: [zabbix,zabbix-server]
+
+- name: server | install packages
+  yum:
+    name:       "{{ item.name }}"
+    state:      present
+    enablerepo: "{{ item.enablerepo | default('') }}"
+  with_items:   zabbix_server_install_packages | default( zabbix_server_default_package )
+  when: (is_zabbix_server is defined and is_zabbix_server == 1)
+  tags: ['zabbix',zabbix-server]
+
+- name: server | started zabbix-server service
+  service:
+    name: zabbix-server
+    state: started
+    enabled: yes
+  ignore_errors: true
+  when: (is_zabbix_server is defined and is_zabbix_server == 1)
+  tags: ['zabbix',zabbix-server]
+
+- name: server | started mysql-server service for zabbix
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+  ignore_errors: true
+  when: (is_zabbix_server is defined and is_zabbix_server == 1)
+  tags: ['zabbix',zabbix-server]
+
+- name: server | check schema dir
+  stat: path={{ zabbix_db_intial_dir }}
+  register: is_zabbix_db_initial_dir
+  when: (is_zabbix_server is defined and is_zabbix_server == 1)
+  changed_when: (not is_zabbix_db_initial_dir.stat.isdir)
+  tags: ['zabbix',zabbix-server]
+
+- name: server | mysqld | create database zabbix
+  mysql_db:
+    login_host:     "{{ zabbix_db_host | default('localhost') }}"
+    login_user:     "{{ zabbix_db_root | default('root') }}"
+    login_password: "{{ zabbix_db_rtps | default() }}"
+    name:           "{{ zabbix_db_name | default('zabbix') }}"
+    encoding: utf8
+  when: (is_zabbix_server is defined and is_zabbix_server == 1)
+  register: is_zabbix_mysqld
+  tags: ['zabbix',zabbix-server]
+
+- name: server | mysqld | create user zabbix
+  mysql_user:
+    login_host:     "{{ zabbix_db_host | default('localhost') }}"
+    login_user:     "{{ zabbix_db_root | default('root') }}"
+    login_password: "{{ zabbix_db_rtps | default() }}"
+    name:           "{{ zabbix_db_user | default('zabbix') }}"
+    password:       "{{ zabbix_db_pass | default('zabbixpassword') }}"
+    priv:           'zabbix.*:ALL'
+  when: (is_zabbix_server is defined and is_zabbix_server == 1)
+  tags: ['zabbix',zabbix-server]
+
+- name: server | mysqld | import schema
+  mysql_db:
+    login_host:     "{{ zabbix_db_host | default('localhost') }}"
+    login_user:     "{{ zabbix_db_root | default('root') }}"
+    login_password: "{{ zabbix_db_rtps | default() }}"
+    name:           "{{ zabbix_db_name | default('zabbix') }}"
+    target:         "{{ zabbix_db_intial_dir }}/schema.sql"
+    state: import
+  when: (
+          (
+            (is_zabbix_server is defined and is_zabbix_server == 1)
+        and (is_zabbix_mysqld.changed is defined and is_zabbix_mysqld.changed)
+          ) or 
+          (is_zabbix_server_force is defined and is_zabbix_server_force == 1)
+        )
+  tags: ['zabbix',zabbix-server]
+
+- name: server | mysqld | import images
+  mysql_db:
+    login_host:     "{{ zabbix_db_host | default('localhost') }}"
+    login_user:     "{{ zabbix_db_root | default('root') }}"
+    login_password: "{{ zabbix_db_rtps | default() }}"
+    name:           "{{ zabbix_db_name | default('zabbix') }}"
+    target:         "{{ zabbix_db_intial_dir }}/images.sql"
+    state: import
+  when: (
+          (
+            (is_zabbix_server is defined and is_zabbix_server == 1)
+        and (is_zabbix_mysqld.changed is defined and is_zabbix_mysqld.changed)
+          ) or 
+          (is_zabbix_server_force is defined and is_zabbix_server_force == 1)
+        )
+  tags: ['zabbix',zabbix-server]
+
+- name: server | mysqld | import data
+  mysql_db:
+    login_host:     "{{ zabbix_db_host | default('localhost') }}"
+    login_user:     "{{ zabbix_db_root | default('root') }}"
+    login_password: "{{ zabbix_db_rtps | default() }}"
+    name:           "{{ zabbix_db_name | default('zabbix') }}"
+    target:         "{{ zabbix_db_intial_dir }}/data.sql"
+    state: import
+  when: (
+          (
+            (is_zabbix_server is defined and is_zabbix_server == 1)
+        and (is_zabbix_mysqld.changed is defined and is_zabbix_mysqld.changed)
+          ) or 
+          (is_zabbix_server_force is defined and is_zabbix_server_force == 1)
+        )
+  tags: ['zabbix',zabbix-server]
+
+- name: server | httpd | edit timezone
+  lineinfile: dest=/etc/httpd/conf.d/zabbix.conf regexp="{{ item.r }}" line="{{ item.l }}"
+  with_items:
+    - { r: "# php_value date.timezone", l: " php_value date.timezone Asia/Tokyo" }
+  when: (is_zabbix_server is defined and is_zabbix_server == 1)
+  tags: ['zabbix',zabbix-server]
+    
+
+
+
+
+

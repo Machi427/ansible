@@ -1,0 +1,9 @@
+# for Project Development local vagrant
+[ifg_local]
+
+[ifg_local:children]
+web
+
+[web]
+localhost ansible_connection=local ansible_ssh_pass=vagrant ansible_ssh_pass=vagrant
+

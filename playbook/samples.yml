@@ -1,0 +1,6 @@
+# ansible のテスト用
+
+- hosts: all
+  sudo: yes
+  roles:
+    - samples

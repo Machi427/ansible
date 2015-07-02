@@ -1,0 +1,92 @@
+# see https://github.com/geerlingguy/ansible-role-php
+# CentOS一択なのでDebianは捨てた
+# 5.6 向けなので apc も捨てた
+
+- name: "* roles/php56 | tags php56 composer phpunit"
+  debug:
+  tags: [php56]
+
+- name: define php_packages.
+  set_fact:
+    php_packages: "{{ __php_packages | list }}"
+  when: php_packages is not defined
+  tags: [php56]
+
+- name: install required PHP packages
+  yum:
+    name: "{{ item.name }}"
+    state: installed
+    enablerepo: "{{ item.repo }}"
+  with_items: pre_php_packages
+  notify: restart webserver
+  tags: [php56]
+
+- name: install ensure PHP packages
+  yum:
+    name: "{{ item }}"
+    state: installed
+    enablerepo: "{{ php_enablerepo }}"
+  with_items: php_packages
+  notify: restart webserver
+  tags: [php56]
+
+- name: ensure configuration directories exist.
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ php_conf_path }}"
+    - "{{ php_extension_conf_path }}"
+  tags: [php56]
+
+- name: place PHP configuration file in place.
+  template:
+    src: php.ini.j2
+    dest: "{{ php_conf_path }}/php.ini"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart webserver
+  tags: [php56]
+
+- name: composer | install
+  shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin creates=/usr/local/bin/composer
+  tags: [php56,composer]
+
+- name: composer | rename composer.phar to composer
+  shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer creates=/usr/local/bin/composer
+  tags: [php56,composer]
+
+- name: composer | make composer executable
+  # shell: chmod a+x /usr/local/bin/composer
+  file: path=/usr/local/bin/composer mode=0755
+  tags: [php56,composer]
+
+- name: phpunit | install from phpunit.de
+  get_url: url=https://phar.phpunit.de/phpunit.phar dest=/usr/local/bin/phpunit mode=555
+  tags: [php56,phpunit]
+
+- name: php-swfed | download
+  get_url:
+    url: 'http://sourceforge.jp/frs/redir.php?m=iij&f=/swfed/60548/swfed-0.62.tar.gz'
+    dest: /usr/local/src/swfed-0.62.tar.gz
+  tags: [php56,php-swfed]
+
+- name: php-swfed | unarchive
+  unarchive:
+    src: /usr/local/src/swfed-0.62.tar.gz
+    dest: /usr/local/src
+  tags: [php56,php-swfed]
+
+- name: php-swfed | build
+  shell: >
+    {{ item }}
+    chdir=/usr/local/src/swfed-0.62/src
+    creates=/usr/local/src/swfed-0.62/src/modules/swfed.so
+  with_items:
+    - phpize
+    - ./configure
+    - make
+    - make install
+  tags: [php56,php-swfed]
+

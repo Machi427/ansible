@@ -1,0 +1,15 @@
+- name: "* roles/nodejs"
+  debug:
+  tags: [nodejs]
+
+- name: install node.js
+  yum: name=nodejs enablerepo=epel state=latest
+  tags: [nodejs]
+
+- name: install npm
+  yum: name=npm enablerepo=epel state=latest
+  tags: [nodejs]
+
+- name: install grant-cli
+  npm: name=grunt-cli global=yes state=present
+  tags: [nodejs]

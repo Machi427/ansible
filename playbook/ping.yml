@@ -1,0 +1,46 @@
+- hosts: all
+  sudo: yes
+  gather_facts: yes
+  tasks:
+
+    - name: ping to server.
+      ping:
+
+    - name: fact is
+      debug: msg="{{ item.k }} is {{ item.v }}"
+      with_items:
+        - { k: inventory_file,     v: "{{ inventory_file }}" }
+        - { k: play_hosts,         v: "{{ play_hosts }}" }
+        - { k: inventory_hostname, v: "{{ inventory_hostname }}" }
+        - { k: ansible_hostname,   v: "{{ ansible_hostname }}" }
+        - { k: ansible_fqdn,       v: "{{ ansible_fqdn }}" }
+        - { k: group_names,        v: "{{ group_names }}" }
+        - { k: ansible_all_ipv4_addresses, v: "{{ ansible_all_ipv4_addresses }}" }
+
+    - name: can use group_vars ?
+      debug: msg='use inventory/group_vars/{{item |replace('ping_gv_','')}} '
+      when: ({{ item  }} is defined)
+      with_items:
+        - ping_gv_all
+        - ping_gv_ifg_local
+        - ping_gv_ifg_vagrant
+        - ping_gv_ifg_share
+        - ping_gv_ifg_sandbox
+        - ping_gv_ifg_staging
+        - ping_gv_ifg_production
+        - ping_gv_ctl
+        - ping_gv_ssh
+        - ping_gv_jenkins
+        - ping_gv_deploy
+        - ping_gv_zabbix
+        - ping_gv_munin
+        - ping_gv_log
+        - ping_gv_admin
+        - ping_gv_web
+        - ping_gv_cache
+        - ping_gv_kvs
+        - ping_gv_db
+
+    - name: can use host_vars ?
+      debug: msg=' use inventory/host_vars/{{ ping_hv }}'
+      when: (ping_hv is defined)

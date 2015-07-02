@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+<source>
+  type {{ item.type | default('tail') }}
+  format {{ item.format | default('/^(?<message>.*)/') }}
+  time_format {{ item.timeformat | default('%d/%b/%Y:%H:%M:%S %z') }}
+  path {{ item.path }}
+  tag {{ item.tag }}
+  pos_file {{ item.pos_file }}
+  rotate_wait {{ item.rotate_wait | default('30') }}
+  refresh_interval {{ item.interval | default('5') }}
+  read_all {{ item.read_all | default('true') }}
+</source>

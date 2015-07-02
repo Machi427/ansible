@@ -1,0 +1,56 @@
+# host 毎設定 omg-sandbox05
+
+# playbook/ping 用
+ping_hv: omg-sandbox05
+
+
+# roles/nginx 用
+nginx_sites:
+ - server:
+    file_name:   sb17.omg.griphone.co.jp.conf
+    server_name: sb17.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/sb17.omg.griphone.co.jp/sb17.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/sb17.omg.griphone.co.jp/sb17.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   sb18.omg.griphone.co.jp.conf
+    server_name: sb18.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/sb18.omg.griphone.co.jp/sb18.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/sb18.omg.griphone.co.jp/sb18.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   sb19.omg.griphone.co.jp.conf
+    server_name: sb19.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/sb19.omg.griphone.co.jp/sb19.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/sb19.omg.griphone.co.jp/sb19.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+ - server:
+    file_name:   sb20.omg.griphone.co.jp.conf
+    server_name: sb20.omg.griphone.co.jp
+    listen: 80
+    access_log:  "/var/log/nginx/sb20.omg.griphone.co.jp/sb20.omg.griphone.co.jp-access.log   gzip"
+    error_log:   "/var/log/nginx/sb20.omg.griphone.co.jp/sb20.omg.griphone.co.jp-error.log"
+    include:     "/etc/nginx/conf.d/include/common-dev.conf"
+
+# roles/httpd 用
+httpd_sites:
+ - server:
+    sb_name:     sb17
+    file_name:   sb17.omg.griphone.co.jp.conf
+    server_name: sb17.omg.griphone.co.jp
+ - server:
+    sb_name:     sb18
+    file_name:   sb18.omg.griphone.co.jp.conf
+    server_name: sb18.omg.griphone.co.jp
+ - server:
+    sb_name:     sb19
+    file_name:   sb19.omg.griphone.co.jp.conf
+    server_name: sb19.omg.griphone.co.jp
+ - server:
+    sb_name:     sb20
+    file_name:   sb20.omg.griphone.co.jp.conf
+    server_name: sb20.omg.griphone.co.jp
+

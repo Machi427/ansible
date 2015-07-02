@@ -1,0 +1,87 @@
+#!/bin/bash
+#
+#	/etc/rc.d/init.d/hhvm
+#
+# Starts the hhvm daemon
+#
+# chkconfig: 345 26 74
+# description: HHVM (aka the HipHop Virtual Machine) is an open-source virtual machine designed for executing programs written in Hack and PHP
+# processname: hhvm
+
+### BEGIN INIT INFO
+# Provides: hhvm
+# Required-Start: $local_fs
+# Required-Stop: $local_fs
+# Default-Start:  2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: start and stop hhvm
+# Description: HHVM (aka the HipHop Virtual Machine) is an open-source virtual machine designed for executing programs written in Hack and PHP
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+PORT=9000
+USER=apache
+MODE=daemon
+
+if [ -f /etc/sysconfig/hhvm ]; then
+    . /etc/sysconfig/hhvm
+fi
+
+RETVAL=0
+pidfile=${PIDFILE-/var/run/hhvm/pid}
+lockfile=${LOCKFILE-/var/lock/subsys/hhvm}
+
+
+start() {
+	echo -n "Starting hhvm: "
+        # Fxxkin ORG
+        # /usr/bin/hhvm --config /etc/hhvm/server.hdf --user apache --mode daemon
+        # This is coool.
+        daemon --pidfile ${pidfile} hhvm --config /etc/hhvm/server.hdf --config /etc/hhvm/php.ini --mode ${MODE} -vServer.Type=fastcgi -vServer.Port=${PORT}
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && touch ${lockfile}
+}	
+
+stop() {
+	echo -n "Shutting down hhvm: "
+	# killproc `cat /var/hhvm/hhvm.pid`
+        killproc -p ${pidfile} /usr/bin/hhvm
+        RETVAL=$?
+        echo
+        if [ $RETVAL -eq 0 ]; then
+                rm -f ${lockfile} ${pidfile}
+        fi
+}
+
+case "$1" in
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    status)
+	#if [ -f "/proc/$(cat /var/run/hhvm.pid 2>/dev/null)" ];then
+	#	echo "hhvm is running"
+	#else
+	#	echo "hhvm is not running"
+	#fi
+        status -p ${pidfile} hhvm
+        RETVAL=$?
+	;;
+    restart)
+    	stop
+	start
+	;;
+    reload|condrestart|probe)
+	echo "$1 - Not supported."
+	;;
+    *)
+	echo "Usage: hhvm {start|stop|status|reload|restart[|probe]"
+	RETVAL=2
+	;;
+esac
+exit $RETVAL

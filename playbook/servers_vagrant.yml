@@ -1,0 +1,12 @@
+# ローカル環境の vagrant の web を構成する
+#
+
+- hosts: vagrant
+  sudo: yes
+  roles:
+    - nginx
+    - httpd
+    - mysql
+    - redis
+    - memcached
+

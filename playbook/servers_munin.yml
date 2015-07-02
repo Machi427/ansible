@@ -1,0 +1,8 @@
+- hosts: munin
+  sudo: yes
+  roles:
+    - { role: munin,
+        is_munin_server: 1,
+        is_munin_server_force: 1
+      }
+

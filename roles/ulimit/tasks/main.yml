@@ -1,0 +1,30 @@
+---
+
+# ulimit. see http://d.hatena.ne.jp/akishin999/20130213/1360711554
+# 今のところ強制的にファイルディスクリプタの値を 65536 にしている
+# 特に他の値にする必要が見当たらないので当面このまま
+
+- name: "* roles/ulimit | tags ulimit | allways 65536"
+  debug:
+  tags: [ulimit]
+
+- name: change comment /etc/security/limits.conf
+  lineinfile: dest=/etc/security/limits.conf regexp="^# Ansible changes." line="# Ansible changes."
+  tags: [ulimit]
+
+- name: change soft /etc/security/limits.conf
+  lineinfile: dest=/etc/security/limits.conf regexp="^\* soft nofile 65536" line="* soft nofile 65536"
+  tags: [ulimit]
+
+- name: change hard /etc/security/limits.conf
+  lineinfile: dest=/etc/security/limits.conf regexp="^\* hard nofile 65536" line="* hard nofile 65536"
+  tags: [ulimit]
+
+- name: copy to /etc/initscript (maybe no file first time)
+  copy: src=etc_initscript dest=/etc/initscript owner=root group=root mode=0644 backup=yes
+  tags: [ulimit]
+
+- name: edit /etc/sysconfig/init
+  lineinfile: dest=/etc/sysconfig/init regexp="^ulimit " line="ulimit -n 65536"
+  tags: [ulimit]
+

@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+
+127.0.0.1   {{ inventory_hostname }} {{ ansible_hostname }} {{ hn|default("") }} localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+192.168.33.1  omg-web
+192.168.33.2  omg-hhvm
+192.168.33.3  omg-db
+192.168.33.10 omg-ctl
+192.168.33.11 omg-zabbix
+192.168.33.12 omg-munin 
+192.168.33.13 omg-jenkins

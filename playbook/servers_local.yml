@@ -1,0 +1,25 @@
+# プロジェクトの開発環境を作る 
+#
+# ansible-playbook servers_local.yml
+
+- hosts: ifg_local
+  sudo: yes
+  roles:
+    - { role: nginx,
+        nginx_sites: none,
+        nginx_local_server: 1
+      }
+    # hhvm をあきらめて httpd にします
+    # - hhvm
+    - { role: httpd,
+        httpd_sites: none,
+        httpd_local_server: 1
+      }
+    - mysql
+    - redis
+    - memcached
+    - nodejs
+    - fluentd
+    - phpmyadmin
+    - phpredisadmin
+    - phpmemcachedadmin

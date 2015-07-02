@@ -1,0 +1,4 @@
+# ロールの vars に書かれた値は優先度がかなり高い。
+# 上書きするのは困難（ -e や task 中で register するなど ）
+# なので、出来るだけ使わないほうがいいと思われる
+vars_test01: roles/test/vars/main.yml

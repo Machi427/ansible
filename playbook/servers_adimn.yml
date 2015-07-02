@@ -1,0 +1,13 @@
+- hosts: admin
+  sudo: yes
+  roles:
+    - { role: nginx,
+        nginx_prod_server: 1
+      }
+    # server flg は inventory/group_vars , host_vars を参照すること
+    - { role: httpd,
+        httpd_prod_server: 1
+      }
+    - mysql
+    - redis
+    - memcached

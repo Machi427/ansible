@@ -1,0 +1,94 @@
+# {{ansible_managed}}
+
+index           index.html index.htm index.php;
+
+set $do_not_cache 1;
+proxy_no_cache          $do_not_cache;
+proxy_cache_bypass      $do_not_cache;
+proxy_intercept_errors  on;
+proxy_connect_timeout   4;
+proxy_read_timeout      4;
+proxy_send_timeout      4;
+
+# Apache と KeepAlive するためにヘッダ再セット。（必須）
+#proxy_http_version      1.1;
+proxy_set_header    Connection          "";
+proxy_set_header    Host                $host;
+proxy_set_header    X-Real-IP           $remote_addr;
+proxy_set_header    X-Forwarded-Host    $host;
+proxy_set_header    X-Forwarded-Server  $host;
+proxy_set_header    X-Forwarded-For     $proxy_add_x_forwarded_for;
+
+root    /var/www/vhosts/$server_name/omega/current/webroot;
+
+# 通常アクセスではエラーステータスは全て 200 に変換。GREE タイムアウト対策。
+# devXX 環境上では 504 (Gateway timeout) 以外は変換しないようにした。
+# error_page   500 501 502 503 504  =200 /busy.html;
+error_page  504 =200 /busy.html;
+# error_page   404                  =200 /404.html;
+location ^~ ^/(?:busy|404)\.html {
+    expires 1s; # 連打されると厄介なので 1 秒だけキャッシュ。
+    internal;
+}
+# api 用 50x。
+location = /50x.html {
+    root   /usr/share/nginx/html;
+    expires -1; # no-cache
+    internal;
+}
+
+# lifecycle (api) はタイムアウト長め。かつ、50x はそのまま返す。
+location ^~ /lifecycle/ {
+    error_page   500 501 502 503 504  /50x.html;
+    error_page   404                  /dummy-404.html;  # HACK: 存在しないファイルを指定すれば nginx の 404 が返る。
+    proxy_connect_timeout   60;
+    proxy_read_timeout      60;
+    proxy_send_timeout      60;
+    proxy_pass   http://localhost.backend;
+}
+
+# w3c-validator 用。
+location ^~ /w3c-validator/ {
+    error_page   500 501 502 503 504  /50x.html;
+    error_page   404                  /dummy-404.html;  # HACK: 存在しないファイルを指定すれば nginx の 404 が返る。
+    proxy_connect_timeout   300;
+    proxy_read_timeout      300;
+    proxy_send_timeout      300;
+    proxy_pass   http://localhost.backend;
+}
+
+location / {
+    try_files       $uri @php;
+}
+
+# encoded は必ず php を通して画像出力する。
+location ^~ /encoded/ {
+    # root    /var/www/vhosts/$server_name/current/webroot;
+    # try_files       $uri @php;
+    proxy_pass          http://localhost.backend;
+}
+
+# 静的ファイル設定。
+# ?: prefix は $1 などのキャプチャを行わない(non-capturing)。$1 などにキャプチャする分のパフォーマンスが低下しない。
+location ~* \.(?:ico|css|js|gif|jpe?g|png)$ {
+    expires    max;
+    add_header Pragma public;
+    add_header Cache-Control "public, must-revalidate, proxy-revalidate";
+    # access_log      off;
+    # log_not_found   off;
+}
+
+location ~ /.*\.php$ {
+    proxy_pass          http://localhost.backend;
+}
+location @php {
+    proxy_pass          http://localhost.backend;
+}
+
+# deny access to .htaccess files, if Apache's document root
+# concurs with nginx's one
+#
+location ~ /\.ht {
+    deny  all;
+}
+

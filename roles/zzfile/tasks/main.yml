@@ -1,0 +1,28 @@
+# zzfile_conf に指定されたファイルをテンプレートとしてサーバに配布します
+# 主に競合するようなファイルの最終的な置き換え用です
+
+- name: "* roles/zzfile"
+  debug:
+  tags: [zzfile]
+
+- name: upload files from group_vars
+  template:
+    src:   "{{ item.src }}"
+    dest:  "{{ item.dest }}"
+    owner: "{{ item.owner | default('root')}}"
+    group: "{{ item.group | default('root') }}"
+    mode:  "{{ item.mode  | default('0644')}}"
+  with_items: group_zzfile_conf
+  when: group_zzfile_conf is defined
+  tags: [zzfile]
+
+- name: upload files from host_vars
+  template:
+    src:   "{{ item.src }}"
+    dest:  "{{ item.dest }}"
+    owner: "{{ item.owner | default('root')}}"
+    group: "{{ item.group | default('root') }}"
+    mode:  "{{ item.mode  | default('0644')}}"
+  with_items: host_zzfile_conf
+  when: host_zzfile_conf is defined
+  tags: [zzfile]

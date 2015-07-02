@@ -1,0 +1,58 @@
+---
+
+# timezone change to ZONENAME (default Asia/Tokyo)
+#
+# ansible-playbook playbook.yml -l TARGET --tags=timezone
+# ansible-playbook playbook.yml -l TARGET --tags=timezone --extra-vars "ZONENAME=UCT"
+
+- name: "* roles/timezone | tags timezone | ev ZONENAME ( Asia/Tokyo )"
+  debug:
+  tags: [timezone]
+
+- name: check zoneinfo
+  stat: path=/usr/share/zoneinfo/{{ ZONENAME | default('Asia/Tokyo') }}
+  register: target_zoneinfo
+  tags: [timezone]
+
+- name: skip if ZONENAME is right value.
+  fail: msg='ZONENAME={{ ZONENAME }} is unknown. please use like --extra-vars "ZONENAME=GMT"'
+  when: target_zoneinfo.stat.md5 is not defined
+  tags: [timezone]
+
+- name: check localtime
+  stat: path=/etc/localtime follow=yes
+  register: target_localtime
+  tags: [timezone]
+
+- name: symlink /etc/localtime
+  file: src=/usr/share/zoneinfo/{{ ZONENAME | default('Asia/Tokyo') }} dest=/etc/localtime state=link force=yes
+  when: (target_zoneinfo.stat.md5 != target_localtime.stat.md5)
+  changed_when: (target_zoneinfo.stat.md5 != target_localtime.stat.md5)
+  tags: [timezone]
+
+# clock
+
+- name: /etc/sysconfig/clock
+  lineinfile: dest=/etc/sysconfig/clock regexp="^ZONE" line='ZONE="{{ ZONENAME | default('Asia/Tokyo') }}"'
+  register: is_sysconfig_clock
+  changed_when: is_sysconfig_clock.changed
+  tags: [timezone]
+
+- name: skip if /etc/sysconfig/clock unchanged
+  debug: msg="{{ is_sysconfig_clock }}"
+  when: is_sysconfig_clock.changed
+  tags: [timezone]
+
+# 確認用
+
+- name: get ( date )
+  command: date
+  register: server_date
+  changed_when: False
+  tags: [timezone]
+
+- name: show date
+  debug: msg={{ server_date.stdout_lines }}
+  changed_when: False
+  tags: [timezone]
+

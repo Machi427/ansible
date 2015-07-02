@@ -1,0 +1,43 @@
+---
+
+# python 2.7 setup
+
+- name: "* roles/py27 | tags py27"
+  debug:
+  tags: [py27]
+
+- name: pre packages install
+  yum:
+    name: "{{ item.name }}"
+    state: present
+    enablerepo: "{{ item.enablerepo | default('') }}"
+  # with_items: py27_install_packages | default( py27_default_package )
+  with_items: py27_default_package
+  tags: [py27]
+
+- name: check xbuild
+  stat: path=/var/tmp/xbuild
+  register: is_py27
+  tags: [py27]
+
+- name: clone xbuild
+  git:
+    repo: https://github.com/tagomoris/xbuild.git
+    dest: /var/tmp/xbuild
+  when: (is_py27.stat.isdir is not defined)
+  tags: [py27]
+
+- name: install python
+  command: chdir="/var/tmp/" xbuild/python-install 2.7.8 /opt/python-2.7
+  when: is_py27.stat.isdir is not defined
+  tags: [py27]
+
+- name: Set PATH
+  template:
+    dest: /etc/profile.d/py27.sh
+    src: py27.sh
+    group: root
+    owner: root
+    mode: 0644
+  tags: [py27]
+

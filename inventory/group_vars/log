@@ -1,0 +1,9 @@
+# playbook/ping.yml 用のテスト。
+ping_gv_log: group_vars/log
+
+# グループレベルで同じものはここに書いてもよい
+vars_test01: group_vars/log
+vars_test02: group_vars/log
+vars_test03: group_vars/log
+vars_test04: group_vars/log
+

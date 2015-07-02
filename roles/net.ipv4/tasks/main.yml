@@ -1,0 +1,24 @@
+---
+
+# net.ipv4 for fluentd. see http://docs.fluentd.org/ja/articles/before-install
+
+- name: "* roles/net.ipv4 | tags net.ipv4 "
+  debug:
+  tags: [net.ipv4]
+
+- name: /etc/sysctl.conf comment
+  lineinfile: dest=/etc/sysctl.conf regexp="^# Ansible changes." line="# Ansible changes."
+  tags: [net.ipv4]
+
+- name: /etc/sysctl.conf net.ipv4.tcp_tw_recycle
+  lineinfile: dest=/etc/sysctl.conf regexp="^net.ipv4.tcp_tw_recycle" line="net.ipv4.tcp_tw_recycle = 1"
+  tags: [net.ipv4]
+
+- name: /etc/sysctl.conf net.ipv4.tcp_tw_reuse
+  lineinfile: dest=/etc/sysctl.conf regexp="^net.ipv4.tcp_tw_reuse" line="net.ipv4.tcp_tw_reuse = 1"
+  tags: [net.ipv4]
+
+- name: /etc/sysctl.conf net.ipv4.ip_local_port_range
+  lineinfile: dest=/etc/sysctl.conf regexp="^net.ipv4.ip_local_port_range" line="net.ipv4.ip_local_port_range = 10240 65535"
+  tags: [net.ipv4]
+

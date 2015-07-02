@@ -1,0 +1,50 @@
+- name: "* roles/nginx with nginx_local_server"
+  debug:
+  tags: [nginx, nginx_local]
+
+- name: mkdir /etc/nginx/conf.d/default
+  file: path=/etc/nginx/conf.d/default state=directory mode=0755
+  when: (nginx_local_server is defined and nginx_local_server == 1)
+  notify: 
+   - restart nginx
+  tags: [nginx, nginx_local]
+
+- name: Copy the nginx default configuration file 
+  template: src=default.conf.local.j2 dest=/etc/nginx/conf.d/default.conf
+  when: (nginx_local_server is defined and nginx_local_server == 1)
+  notify: 
+   - restart nginx
+  tags: [nginx, nginx_local]
+
+- name: Create the configurations for local pages
+  template: src=default/{{ item }} dest=/etc/nginx/conf.d/default/{{ item }}
+  with_items:
+    - mem.conf
+    - pma.conf
+    - pra.conf
+    - omega.conf
+  when: (nginx_local_server is defined and nginx_local_server == 1)
+  notify: 
+   - restart nginx
+  tags: [nginx, nginx_local]
+
+- name: link to nginx
+  file: src=/usr/share/omega/omega/webroot
+        dest=/usr/share/nginx/omg
+        owner=root
+        group=root
+        state=link
+  when: (nginx_local_server is defined and nginx_local_server == 1)
+  tags: [nginx, nginx_local]
+
+- name: Copy the nginx default html file 
+  template: src=index.html.j2 dest=/usr/share/nginx/html/index.html
+  when: (nginx_local_server is defined and nginx_local_server == 1)
+  tags: [nginx, nginx_local, nginx-local-content]
+
+- name: Copy the nginx default css file 
+  template: src=prj.css.j2 dest=/usr/share/nginx/html/prj.css
+  when: (nginx_local_server is defined and nginx_local_server == 1)
+  tags: [nginx, nginx_local, nginx-local-content]
+
+
